@@ -14,6 +14,7 @@ from engdds_faturamento_hourly import engdds_faturamento_hourly_main
 from engdds_bom import engdds_bom_main
 from engdds_sku import engdds_sku_main
 from engdds_werkish import engdds_werkish_main
+from engdds_cockpit import engdds_cockpit_main
 
 # Inicializando o COLORAMA
 init()
@@ -145,6 +146,13 @@ def task07():
     finally:
         limpar_variaveis()
 
+def task08():
+    try:
+        engdds_cockpit_main()
+        logging.info("ENGDDS_COCKPIT_MAIN executado")
+    except Exception as erro:
+        logging.info("ENGDDS_COCKPIT_MAIN não executado")
+
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ TASK LIST :: Lista de tarefas de extração incremental                            ║
 # ║ -----------------------------------------------------                            ║
@@ -199,6 +207,7 @@ def extracao_diaria():
     task05() # bom
     task06() # compras
     task07() # estoque
+    task08() # cockpit
     trigger.trigger_airflow_dag(dag_name='daily_chained_dags')
     logging.info(f"Final do Processamento :: EXTRACAO DIARIA")
     logging.info("═════════════════════════════════════════════════════════════════════════")
