@@ -56,6 +56,8 @@ def engdds_sku_main():
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/MARA.xlsx")
         sap.cleanup()
         
     except Exception as e:
@@ -64,7 +66,7 @@ def engdds_sku_main():
         sap.limpar_processos()
         sap.cleanup()
 
-    # Extrair tabela MAKT
+    # # Extrair tabela MAKT
     try:
 
         session = sap.login_to_s4hana()
@@ -103,6 +105,8 @@ def engdds_sku_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/MAKT.XLSX")
         sap.cleanup()
         
     except Exception as e:
@@ -150,6 +154,8 @@ def engdds_sku_main():
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/ZVMM_MAT_CLASS.XLSX")
         sap.cleanup()
         
     except Exception as e:

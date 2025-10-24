@@ -54,16 +54,14 @@ def engdds_compras_main():
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX")
         sap.cleanup()
         print('Extração da ME2W concluída.')
 
     except Exception as e:
         print(f'Erro ao exportar dados do relatório ME2W :: {str(e)}')
-        # Encerrar sessão do SAP
-        os.system('taskkill /f /im saplogon.exe')
-        #os.system('taskkill /f /im saplogon.exe')
-        os.system('taskkill /f /im cmd.exe')
-        os.system('taskkill /f /im notepad.exe')
+        sap.limpar_processos()
         sap.cleanup()
 
     # Extração do Relatório de Requisições de Compra - ME5A
@@ -112,6 +110,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX")
         sap.cleanup()
         print('Extração da ME5A concluída.')
 
@@ -155,6 +155,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EBAN.XLSX")
         sap.cleanup()
         print('Extração EBAN concluída.')
 
@@ -198,6 +200,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKKO.XLSX")
         sap.cleanup()
         print('Extração EKKO concluída.')
 
@@ -246,6 +250,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
         sap.cleanup()
         print('Extração EKPO concluída.')
 
@@ -307,6 +313,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+                     f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
         sap.cleanup()
         print('Extração ZMM_PURDOCS_REPORT concluída.')
 
@@ -372,6 +380,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX")
         sap.cleanup()
         print('Textos de Cabeçalho extraídos com sucesso.')       
 
@@ -436,6 +446,8 @@ def engdds_compras_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX")
         sap.cleanup()
         print('Textos de Cabeçalho extraídos com sucesso.')       
 

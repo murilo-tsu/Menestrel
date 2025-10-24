@@ -28,6 +28,8 @@ def engdds_werkish_main():
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/WERKS.xlsx")
         sap.cleanup()
 
     finally:
@@ -58,6 +60,8 @@ def engdds_werkish_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/LGORT.xlsx")
         sap.cleanup()
 
 
@@ -88,6 +92,8 @@ def engdds_werkish_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/TVSTT.xlsx")
         sap.cleanup()
 
     except Exception as e:
