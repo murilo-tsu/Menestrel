@@ -2,14 +2,16 @@ import win32com.client
 import subprocess
 import requests
 from datetime import datetime
-from menestrel_encryptor import sap_crypto
+from menestrel_encryptor import sap_crypto, sp_crypto
 from requests.auth import HTTPBasicAuth
+from graph_api_connector import sharepoint
 import time
 
 class SAPLogin:
     def __init__(self):
         
         self.username, self.password = sap_crypto().obter_credencias()
+        self.sp_user, self.sp_pass = sp_crypto().credenciais_sharepoint() # << NOVA
         self.connection = None
         self.application = None
         self.session = None
@@ -40,7 +42,7 @@ class SAPLogin:
         """Login SAP4HANA"""
         try:
             self._initialize_sap_gui()
-            print(':: SAP4HANA logado com suceso!')
+            print('---> SAP4HANA logado com suceso!')
             return self._perform_login("SAP S/4 HANA PROD", lang)
         except Exception as e:
             self.cleanup()
@@ -73,15 +75,28 @@ class SAPLogin:
         Encerrar os processos em execução e limpar a sessão do SAP4HANA.
         Dessa forma, o processo é liberado para uma nova execução.
         """
-        processos = ['saplogon.exe', 'notepad.exe', 'cmd.exe', 'excel.exe']
+        processos = ['saplogon.exe', 'notepad.exe', 'cmd.exe', 'excel.exe', 'sublime_text.exe']
         for processo in processos:
 
             subprocess.run(f'taskkill /f /im {processo}',
                             shell = True, stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, timeout = 2)
         
-        print(':: SAP4HANA e processos correlatos encerrados!')
+        print('---> SAP4HANA e processos correlatos encerrados!')
                     
+
+    def upload_files(self, sharepoint_folder,local_file_path, ):
+        time.sleep(3)
+        try:
+            sp = sharepoint(self.sp_user, self.sp_pass)
+            sp.connect()
+            sp.upload(sharepoint_folder, local_file_path)
+            print(f'SUCESSO :: {local_file_path} → {sharepoint_folder}')
+            return True
+        except Exception as erro:
+            print(f'FALHA - {erro}')
+            return False
+
 
     def trigger_airflow_dag(self,dag_name):
         """

@@ -14,8 +14,8 @@ sap = SAPLogin()
 
 def engdds_estoque_main():
     try:
-        primeira_data = date.today() + timedelta(days=-32)
-        # primeira_data = date.today() + timedelta(days=-2)
+        primeira_data = date.today() + timedelta(days=-2)
+        # primeira_data = date.today() + timedelta(days=-40)
         dates_range = pd.date_range(primeira_data, pd.Timestamp.now(), freq='D')
         dt_comp = [date.strftime('%Y-%m-%d') for date in dates_range]
         werks = ['E60*', 'E89*', 'E90*', 'P60*', 'P90*']

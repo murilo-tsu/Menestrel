@@ -67,6 +67,8 @@ def engdds_faturamento_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E600.XLSX")
         sap.cleanup()
 
     except Exception as e:
@@ -127,6 +129,8 @@ def engdds_faturamento_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E890.XLSX")
         sap.cleanup()
 
     except Exception as e:
@@ -193,6 +197,8 @@ def engdds_faturamento_main():
         print(f'Erro ao exportar dados do relatório ZSD_PIVB_E900 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
+                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E900.XLSX")
         sap.cleanup()
 
     time.sleep(10)

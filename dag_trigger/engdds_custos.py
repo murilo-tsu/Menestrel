@@ -27,7 +27,7 @@ def engdds_custos_main():
         "E":"_UNIT_VARIABLE_COST.xlsx", "#":"_INTERNAL_TOLLING.xlsx"}
     
     for key, value in cost_comp.items():
-        
+        nome_arquivo = dt_name_custos + " ZSD_RPLCMNT" + value
         try:
             session = sap.login_to_s4hana()
             try:
@@ -47,7 +47,8 @@ def engdds_custos_main():
             #session.findById("wnd[1]/usr/ctxtDY_PATH").caretPosition = 0
             session.findById("wnd[1]").sendVKey (4)
             session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Custos"
-            session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = dt_name_custos + " ZSD_RPLCMNT" + value
+            # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = dt_name_custos + " ZSD_RPLCMNT" + value
+            session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = nome_arquivo
             #session.findById("wnd[2]/usr/ctxtDY_FILENAME").caretPosition = 12
             session.findById("wnd[2]/tbar[0]/btn[11]").press()
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
@@ -55,6 +56,8 @@ def engdds_custos_main():
             # Encerrar a sessão SAP
             sap.limpar_processos()
             time.sleep(5)
+            sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Custos/",
+                             f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insights/Hadoop/SAP4HANA/Custos/{nome_arquivo}")
             sap.cleanup()
         
         except Exception as erro:

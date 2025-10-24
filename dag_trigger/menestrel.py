@@ -191,7 +191,7 @@ def extracao_diaria():
     trigger = SAPLogin()
     logging.info("═════════════════════════════════════════════════════════════════════════")
     logging.info(f"Início do Processamento :: EXTRACAO DIARIA")
-    # pre_task() # arquivos do position
+    pre_task() # arquivos do position
     task01() # sku
     task02() # units
     task03() # custos
@@ -199,7 +199,7 @@ def extracao_diaria():
     task05() # bom
     task06() # compras
     task07() # estoque
-    trigger.trigger_airflow_dag(dag_name='minio_daily_execution_sap4hana')
+    trigger.trigger_airflow_dag(dag_name='daily_chained_dags')
     logging.info(f"Final do Processamento :: EXTRACAO DIARIA")
     logging.info("═════════════════════════════════════════════════════════════════════════")
 

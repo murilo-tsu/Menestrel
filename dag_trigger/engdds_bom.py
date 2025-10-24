@@ -49,6 +49,8 @@ def engdds_bom_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E890.XLSX")
         sap.cleanup()
 
     except Exception as e:
@@ -84,6 +86,8 @@ def engdds_bom_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX")
         sap.cleanup()
 
     except Exception as e:
@@ -119,6 +123,8 @@ def engdds_bom_main():
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX")
         sap.cleanup()
 
     except Exception as e:

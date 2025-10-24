@@ -20,7 +20,7 @@ def position_files_main():
         pass
     t_code = "MB52"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
-    dt = date.today()
+    dt = date.today() - timedelta(days=1)
     file_name = "EXPORT_" + t_code + "_EM_TRANSITO_" + f(dt.day) + "." + f(dt.month) + "_FTO_FH.XLSX"
 
     session.findById("wnd[0]/tbar[0]/okcd").text = t_code
@@ -51,7 +51,7 @@ def position_files_main():
         pass
     t_code = "ZMM_QNTY_PIVB"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
-    dt = date.today()
+    dt = date.today() - timedelta(days=1)
     file_name = "EXPORT_" + t_code + "_SUPPLY_" + f(dt.day) + "." + f(dt.month) + "_FTO_FH.XLSX"
     dt_criteria = f(dt.day) + "." + f(dt.month) + "." + f(dt.year)
 
@@ -103,7 +103,7 @@ def position_files_main():
         pass
     t_code = "ZMM_PURDOCS_REPORT"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
-    dt = date.today()
+    dt = date.today() - timedelta(days=1)
     file_name = "EXPORT_" + t_code + "_SUPPLY_" + f(dt.day) + "." + f(dt.month) + "_FTO_FH.XLSX"
     dt_criteria = f(dt.day) + "." + f(dt.month) + "." + f(dt.year)
 
