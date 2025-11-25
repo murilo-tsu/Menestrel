@@ -1,9 +1,16 @@
 from saplogin import SAPLogin
+from Minio import MinioConnector
 import time
+import json
 import os
 sap = SAPLogin()
 
 def engdds_werkish_main():
+
+    minio = MinioConnector()
+    with open('files.json','rb') as file:
+        meta_arquivos = json.load(file)
+
     # WERKS :: CADASTRO DE PLANTAS
     try:
         session = sap.login_to_s4hana()
@@ -21,15 +28,32 @@ def engdds_werkish_main():
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "WERKS.xlsx"
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "WERKS.xlsx"
+        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][0]
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
-                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/WERKS.xlsx")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+        #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/WERKS.xlsx")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     finally:
@@ -53,15 +77,32 @@ def engdds_werkish_main():
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "LGORT.xlsx"
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "LGORT.xlsx"
+        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][1]
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
-                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/LGORT.xlsx")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+        #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/LGORT.xlsx")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
 
@@ -85,15 +126,32 @@ def engdds_werkish_main():
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "TVSTT.xlsx"
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "TVSTT.xlsx"
+        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][2]
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
-                         r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/TVSTT.xlsx")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
+        #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/TVSTT.xlsx")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:

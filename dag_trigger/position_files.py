@@ -16,7 +16,8 @@ def position_files_main():
     session = sap.login_to_s4hana(lang="PT")
     try:
         session.FindById("wnd[0]").SendVKey (0)
-    except:
+    except Exception as erro:
+        print(erro)
         pass
     t_code = "MB52"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
@@ -33,12 +34,14 @@ def position_files_main():
     session.findById("wnd[0]/usr/ctxtP_VARI").text = "/SUPPLY"
     session.findById("wnd[0]").sendVKey (8)
     session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+    session.findById("wnd[1]/tbar[0]/btn[0]").press()
     session.FindById("wnd[1]/usr/ctxtDY_PATH").text = folder_path
     session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = file_name
     session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
     sap.limpar_processos()
     sap.cleanup()
+    time.sleep(5)
 
     # ::::::::::::::::::::::::::::::::::::::::
     # :: ZMM_QNTY_PIVB
@@ -47,7 +50,8 @@ def position_files_main():
     session = sap.login_to_s4hana(lang="PT")
     try:
         session.FindById("wnd[0]").SendVKey (0)
-    except:
+    except Exception as erro:
+        print(erro)
         pass
     t_code = "ZMM_QNTY_PIVB"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
@@ -91,6 +95,7 @@ def position_files_main():
 
     sap.limpar_processos()
     sap.cleanup()
+    time.sleep(5)
 
     # ::::::::::::::::::::::::::::::::::::::::
     # :: ZMM_PURDOCS_REPORT
@@ -99,7 +104,8 @@ def position_files_main():
     session = sap.login_to_s4hana(lang="PT")
     try:
         session.FindById("wnd[0]").SendVKey (0)
-    except:
+    except Exception as erro:
+        print(erro)
         pass
     t_code = "ZMM_PURDOCS_REPORT"
     folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage_position"
@@ -124,6 +130,7 @@ def position_files_main():
     
     sap.limpar_processos()
     sap.cleanup()
+    time.sleep(5)
 
 if __name__ == "__main__":
     position_files_main()

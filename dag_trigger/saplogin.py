@@ -42,7 +42,7 @@ class SAPLogin:
         """Login SAP4HANA"""
         try:
             self._initialize_sap_gui()
-            print('---> SAP4HANA logado com suceso!')
+            print('---> SAP4HANA logado com sucesso!')
             return self._perform_login("SAP S/4 HANA PROD", lang)
         except Exception as e:
             self.cleanup()

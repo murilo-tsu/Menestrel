@@ -1,8 +1,10 @@
 # Create an instance of the SAPLogin class
-from saplogin import SAPLogin
-import datetime
-import time
 from dateutil.relativedelta import relativedelta
+from saplogin import SAPLogin
+from Minio import MinioConnector
+import datetime
+import json
+import time
 import os
 sap = SAPLogin()
 
@@ -11,6 +13,11 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def engdds_bom_main():
+    
+    # 2025-11-18: Instanciando o Minio para utilizar buffer e uploader a partir dos arquivos do json
+    minio = MinioConnector()
+    with open('files.json','rb') as file:
+        meta_arquivos = json.load(file)
     
     end_year_bom = f(datetime.date.today().year)
     end_month_bom = f(datetime.date.today().month)
@@ -41,16 +48,26 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E890.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
+        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][0]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
         print('ZPP_BOM_REP_E890.XLSX salvo com sucesso!')
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E890.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E890.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
@@ -78,16 +95,26 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
+        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][1]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
         print('ZPP_BOM_REP_E600.XLSX salvo com sucesso!')
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
@@ -115,16 +142,27 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX"
+        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][2]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
         print('ZPP_BOM_REP_E900.XLSX salvo com sucesso!')
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # -------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:

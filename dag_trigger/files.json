@@ -1,0 +1,86 @@
+{
+        "engdds_sku.py":
+
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas",
+                "files":["MARA.XLSX","MAKT.XLSX","ZVMM_MAT_CLASS.XLSX"]
+            },
+        
+        "engdds_compras.py":
+
+            {
+                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Compras",
+                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas"],
+                "files":["ME2W.XLSX","ME5A.XLSX","EBAN.XLSX","EKKO.XLSX","EKPO.XLSX",
+                         "ZMM_PURDOCS_REPORT.XLSX","ZMM_PURDOCS_HEADERTEXT.XLSX",
+                         "ZMM_PURDOCS_AUXINFO.XLSX"]
+            },
+        
+        "engdds_bom.py":
+            
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/BOM",
+                "files":["ZPP_BOMREP_E890.XLSX", "ZPP_BOMREP_E600.XLSX", "ZPP_BOMREP_E900.XLSX"]
+            },
+        
+        "engdds_cockpit.py":
+
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Cockpit",
+                "files":["ZPP_COCKPIT.XLSX"]
+            },
+        
+        "engdds_custos.py":
+
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Custos",
+                "files":"ZSD_RPLCMNT",
+                "cost_comp": {
+        
+                                "$":"_AGG_COST.xlsx", "0":"_FOB_PRICE.xlsx", "1":"_FREIGHT.xlsx",
+                                "2":"_PORT_CHARGE.xlsx", "3":"_DEMURRAGE.xlsx", "4":"_COST_ADJ.xlsx",
+                                "5":"_ICMS.xlsx", "6":"_PERC_LOSSES.xlsx", "7":"_WAREHOUSE_COST.xlsx",
+                                "8":"_PRODUCTION_COST.xlsx", "9":"_PACKAGING_COST.xlsx", "A":"_FREIGHT_TO_CMISS.xlsx",
+                                "B":"_PREMIUM_ADJ.xlsx", "C":"_IMPORT_TAX.xlsx", "D":"_TOLLING_COST.xlsx",
+                                "E":"_UNIT_VARIABLE_COST.xlsx", "#":"_INTERNAL_TOLLING.xlsx"
+                            }
+            },
+        
+        "engdds_estoque.py":
+
+            {
+                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Estoque",
+                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas"],
+                "files":["ZMM_QNTY_PIVB_","ZMB5T.XLSX","MCHB.XLSX"],
+                "sufixo_files":"_ALL.XLSX",
+                "werks":["E60*", "E89*", "E90*", "P60*", "P90*"]
+            },
+
+        "engdds_faturamento.py":
+
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Faturamento",
+                "files":["ZSD_PIVB_E600.XLSX", "ZSD_PIVB_E890.XLSX", "ZSD_PIVB_E900.XLSX"]   
+            },
+        
+        "engdds_faturamento_hourly.py":
+        
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Faturamento",
+                "files":["ZSD_PIVB_E600_HOURLY.XLSX", "ZSD_PIVB_E890_HOURLY.XLSX", "ZSD_PIVB_E900_HOURLY.XLSX"]  
+            },
+        
+        "engdds_text_info.py":
+            {
+                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Compras",
+                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/TXT/PO",
+                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/TXT"],
+                "files":["ZMM_PURDOCS_REPORT.XLSX","purchase_order_header_text.csv"]
+            },
+        
+        "engdds_werkish.py":
+            {
+                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas",
+                "files":["WERKS.XLSX", "LGORT.XLSX", "TVSTT.XLSX"]
+            }
+}
