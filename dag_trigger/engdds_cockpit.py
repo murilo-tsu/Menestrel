@@ -1,10 +1,18 @@
 from saplogin import SAPLogin
+from Minio import MinioConnector
 import datetime
+import json
 import time
 import os
 sap = SAPLogin()
 
 def engdds_cockpit_main():
+    
+    # 2025-11-18: Instanciando o Minio para utilizar buffer e uploader a partir dos arquivos do json
+    minio = MinioConnector()
+    with open('files.json','rb') as file:
+        meta_arquivos = json.load(file)
+    
     try:
 
         session = sap.login_to_s4hana()
@@ -23,14 +31,25 @@ def engdds_cockpit_main():
         session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
         session.findById("wnd[1]/tbar[0]/btn[0]").press()
         session.findById("wnd[1]").sendVKey (4)
-        session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Cockpit"
-        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "ZPP_COCKPIT.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Cockpit"
+        session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_cockpit.py']['path']
+        # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "ZPP_COCKPIT.XLSX"
+        nome_arquivo = meta_arquivos['engdds_cockpit.py']['files'][0]
+        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[2]/tbar[0]/btn[11]").press()
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Cockpit/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Cockpit/ZPP_COCKPIT.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Cockpit/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Cockpit/ZPP_COCKPIT.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_cockpit.py']['path'], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
     
     except Exception as erro:

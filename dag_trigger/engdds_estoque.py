@@ -1,7 +1,8 @@
-# Create an instance of the SAPLogin class
 from saplogin import SAPLogin
 from datetime import date, timedelta
+from Minio import MinioConnector
 import pandas as pd
+import json
 import time
 import os
 
@@ -13,19 +14,34 @@ def f(num):
 sap = SAPLogin()
 
 def engdds_estoque_main():
+    
+    minio = MinioConnector()
+    with open('files.json','rb') as file:
+        meta_arquivos = json.load(file)
+
     try:
-        primeira_data = date.today() + timedelta(days=-2)
-        # primeira_data = date.today() + timedelta(days=-40)
+        
+        hoje = date.today().weekday()
+        domingo = (hoje == 6)
+
+        # Definir datas dinâmicas para extração de dados
+        if domingo:
+            primeira_data = date.today() + timedelta(days=-40)
+        else:
+            primeira_data = date.today() + timedelta(days=-20)
+
         dates_range = pd.date_range(primeira_data, pd.Timestamp.now(), freq='D')
         dt_comp = [date.strftime('%Y-%m-%d') for date in dates_range]
-        werks = ['E60*', 'E89*', 'E90*', 'P60*', 'P90*']
+        
+        # werks = ['E60*', 'E89*', 'E90*', 'P60*', 'P90*']
+        werks = meta_arquivos['engdds_estoque.py']['werks']
+
         # Data Inicial para começo da iteração :: começo do sistema
         # Considerar posting dates antigas
         for day in dt_comp:
             dt = date(int(day.split("-")[0]),int(day.split("-")[1]),int(day.split("-")[2]))
 
-            # Iterando através das plantas
-            
+            # Iterando através das plantas declaradas em WERKS
             try:
             
                 for werk in werks:
@@ -66,8 +82,20 @@ def engdds_estoque_main():
                     session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
                     session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
                     session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-                    session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
-                    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
+
+                    try:
+                        session.findById("wnd[1]/tbar[0]/btn[0]").press()
+                    except:
+                        pass
+
+                    # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+                    # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                    
+                    # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
+                    session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
+                    # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
+                    nome_arquivo = f"{dt.year}-{f(dt.month)}-{f(dt.day)} {meta_arquivos['engdds_estoque.py']['files'][0]}{werk[:3]}{meta_arquivos['engdds_estoque.py']['sufixo_files']}"
+                    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+                    # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
                     session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
                     session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
@@ -75,12 +103,17 @@ def engdds_estoque_main():
                     # Encerrar sessão do SAP
                     sap.limpar_processos()
                     time.sleep(5)
+                    arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][0], nome_arquivo)
+                    minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
                     sap.cleanup()
+
                 print(f'{dt.year}-{f(dt.month)}-{f(dt.day)} :: DADOS GRAVADOS!')
             
             except Exception as erro:
                 print(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
                 print(f"Mensagem de erro :: {str(erro)}")
+                sap.limpar_processos()
+                sap.cleanup()
 
     except Exception as e:
         print(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
@@ -112,13 +145,25 @@ def engdds_estoque_main():
         session.findById("wnd[0]/mbar/menu[3]/menu[2]/menu[1]").select()
         session.findById("wnd[1]/usr/subSUB_CONFIGURATION:SAPLSALV_CUL_LAYOUT_CHOOSE:0500/cntlD500_CONTAINER/shellcont/shell").clickCurrentCell()
         session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year}-{end_month}-{end_day} ZMB5T.XLSX"
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+        
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------  
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
+        nome_arquivo = f"{end_year}-{end_month}-{end_day} {meta_arquivos['engdds_estoque.py']['files'][1]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 21
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][0], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
         sap.cleanup()
         
     except Exception as e:
@@ -173,13 +218,25 @@ def engdds_estoque_main():
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "MCHB.XLSX"
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO -------------------------------------------------------------------------------------------------------------------------------------------------------- 
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][1]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "MCHB.XLSX"
+        nome_arquivo = meta_arquivos['engdds_estoque.py']['files'][2]
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
         
         # Encerrar sessão do SAP
         sap.limpar_processos()
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][1], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
         sap.cleanup()  
 
     except Exception as e:

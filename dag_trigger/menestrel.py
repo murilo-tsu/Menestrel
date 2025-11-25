@@ -1,7 +1,6 @@
 import schedule
 import logging
 from datetime import datetime
-from datetime import time as t
 from colorama import init, Fore, Style
 import time
 import os
@@ -15,6 +14,7 @@ from engdds_bom import engdds_bom_main
 from engdds_sku import engdds_sku_main
 from engdds_werkish import engdds_werkish_main
 from engdds_cockpit import engdds_cockpit_main
+from engdds_text_info import engdds_text_info_main
 
 # Inicializando o COLORAMA
 init()
@@ -52,16 +52,24 @@ def clear_terminal_print_logo():
 def limpar_variaveis():
     """Limpar variáveis externas ao menestrel.py"""
     protected_vars = {
-        'schedule', 'logging', 'datetime', 'Fore', 'Style', 'init', 'time', 'os',
-        'engdds_estoque_main', 'engdds_compras_main', 'engdds_custos_main',
-        'engdds_faturamento_main', 'engdds_faturamento_daily_main', 'engdds_bom_main',
-        'engdds_sku_main', 'engdds_werkish_main', 'HEADER', 'print_header',
-        'clear_terminal_print_logo', 'task01', 'task02', 'task03', 'task04',
-        'task05', 'task06', 'task07', 'extracao_diaria', 'extracoes_incrementals',
-        'limpar_variaveis', 'SAPLogin', 'trigger'
 
-        # Vars para serem protegidas devido a execuções posteriores ao longo do dia
-        't', 'engdds_faturamento_hourly_main', 'pre_task', 'position_files'
+        # Tasks declaradas
+        'pre_task','task01','task02','task03','task04','task05','task06','task07','task08','task09',
+        'hourly_task01', 'position_files',
+
+        # Funções de RPA com objetivos específicos
+        'engdds_estoque_main', 'engdds_compras_main', 'engdds_faturamento_main',
+        'engdds_faturamento_daily_main', 'engdds_sku_main', 'engdds_bom_main',
+        'engdds_custos_main', 'engdds_werkish_main', 'engdds_text_info_main',
+        'engdds_faturamento_hourly_main','position_files_main',
+
+        # Bibliotecas a serem protegidas a cada execução de limpeza de variáveis
+        'schedule', 'logging', 'datetime', 'Fore', 'Style', 'init', 'time', 
+        'json','os', 't', 'sap', 'schedule_time', 'minio', 'Minio', 'MinioConnector',
+         
+        # Funções e variáveis auxiliares
+        'extracao_diaria', 'extracoes_incrementais', 'HEADER', 'print_header',
+        'clear_terminal_print_logo', 'limpar_variaveis', 'SAPLogin', 'trigger'
 
     }
     
@@ -75,7 +83,6 @@ def limpar_variaveis():
     
     import gc
     gc.collect()
-
 
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ TASK LIST :: Lista de tarefas de extração                                        ║
@@ -152,6 +159,21 @@ def task08():
         logging.info("ENGDDS_COCKPIT_MAIN executado")
     except Exception as erro:
         logging.info("ENGDDS_COCKPIT_MAIN não executado")
+    finally:
+        limpar_variaveis()
+
+def task09():
+    from saplogin import SAPLogin
+    trigger = SAPLogin()
+    try:
+        engdds_text_info_main()
+        logging.info("ENGDDS_TEXT_INFO_MAIN executado")
+        trigger.trigger_airflow_dag(dag_name='minio_hourly_purchase_recap_sap4hana')
+    except:
+        logging.info("ENGDDS_TEXT_INFO_MAIN não executado")
+    finally:
+        limpar_variaveis()
+
 
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ TASK LIST :: Lista de tarefas de extração incremental                            ║
@@ -159,11 +181,15 @@ def task08():
 # ╚══════════════════════════════════════════════════════════════════════════════════╝
 
 def hourly_task01():
+    from saplogin import SAPLogin
+    trigger = SAPLogin()
     try:
         engdds_faturamento_hourly_main()
         logging.info("ENGDDS_FATURAMENTO_HOURLY_MAIN executado")
+        trigger.trigger_airflow_dag(dag_name='minio_hourly_billing_sap4hana')
     except Exception as erro:
         logging.error("ENGDDS_FATURAMENTO_HOURLY_MAIN não executado")
+   
     finally:
         limpar_variaveis()
 
@@ -178,6 +204,7 @@ def pre_task():
         logging.info(f"POSITION_FILES executado")
     except Exception as erro:
         logging.error(f"POSITION_FILES não executado")
+    
     finally:
         limpar_variaveis()
 
@@ -217,20 +244,28 @@ def extracoes_incrementais():
     Executa extrações incrementais ao longo do dia para atualizar dados em um
     intervalo mais granular, viabilizando a visualização em tempo mais real.
 
-    Faturamento (t1) 
+    Faturamento (t1) >> PRICING FORMULA (t2)
     """
-    logging.info("═════════════════════════════════════════════════════════════════════════")
-    logging.info("Início do Processamento :: Hourly Update")
+    from datetime import time as t
+    logging.info("Agendamento de extrações :: Hourly Update")
     schedule.clear('incremental')
+    schedule_time = 60
+
     # Hourly Task 01 :: Atualiza faturamento
     try:
-        schedule.every(60).minutes.until(t(21,30)).do(engdds_faturamento_hourly_main).tag('incremental')
+        schedule.every(schedule_time).minutes.until(t(20,00)).do(hourly_task01).tag('incremental')
         logging.info("Faturamento Atualizado!")
     except Exception as erro:
         logging.info(f"Faturamento não atualizado: {erro}")
-    logging.info("Final do Processamento :: Hourly Update")
-    logging.info("═════════════════════════════════════════════════════════════════════════")
-    logging.info("Aguardando agendamento do próximos job...")
+    logging.info("Aguardando execução dos próximos jobs...")
+    
+    # Hourly Task 02 :: Lista de textos da Purchase Order :: PRICING_FORMULA
+    try:
+        schedule.every(schedule_time).minutes.until(t(20,00)).do(task09).tag('incremental')
+        logging.info("Textos da Ordem de Compra atualizado!")
+    except Exception as erro:
+        logging.info(f"Textos da Ordem de Compra não atualizados: {erro}")
+    logging.info("Aguardando execução dos próximos jobs...")
 
 logging.basicConfig(filename='menestrel_song.log',
                     level=logging.INFO,
@@ -241,7 +276,7 @@ logging.basicConfig(filename='menestrel_song.log',
 print_header()
 schedule.every().day.at("00:01").do(clear_terminal_print_logo)
 schedule.every().day.at("00:05").do(extracao_diaria)
-# schedule.every().day.at("08:30").do(extracoes_incrementais)
+schedule.every().day.at("07:00").do(extracoes_incrementais)
 
 while True:
     

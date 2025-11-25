@@ -1,5 +1,7 @@
 from saplogin import SAPLogin
+from Minio import MinioConnector
 import datetime
+import json
 import time
 import os
 sap = SAPLogin()
@@ -9,6 +11,10 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def engdds_compras_main():
+    
+    minio = MinioConnector()
+    with open('files.json', 'rb') as file:
+        meta_arquivos = json.load(file)
     
     # Definindo datas dinâmicas
     end_year_compras = f(datetime.date.today().year)
@@ -47,15 +53,31 @@ def engdds_compras_main():
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX"
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras" 
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][0]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+         
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX")
+        
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0],nome_arquivo)
+        minio.upload_from_bytesIO(arquivo,'tmp',nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração da ME2W concluída.')
 
@@ -103,15 +125,31 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_SELGS").selected = True
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX"
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------         
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][1]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------        
         sap.cleanup()
         print('Extração da ME5A concluída.')
 
@@ -148,15 +186,31 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")        
         session.findById("wnd[1]").sendVKey (4)
-        session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------   
+        #session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+        # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
+        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[2]/tbar[0]/btn[11]").press()
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EBAN.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EBAN.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][2])
+        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][2])
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EBAN concluída.')
 
@@ -193,15 +247,31 @@ def engdds_compras_main():
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")        
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKKO.XLSX"        
+        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")  
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKKO.XLSX"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][3]
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKKO.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKKO.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][3])
+        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][3])
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EKKO concluída.')
 
@@ -243,15 +313,31 @@ def engdds_compras_main():
         session.findById("wnd[0]").sendVKey(0)
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")        
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"        
+        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")  
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+              
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][4]
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][4])
+        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][4])
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EKPO concluída.')
 
@@ -307,14 +393,27 @@ def engdds_compras_main():
             pass
 
         session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------        
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX"
+        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][5]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-                     f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------          
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+        #              f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
         sap.cleanup()
         print('Extração ZMM_PURDOCS_REPORT concluída.')
 
@@ -374,14 +473,24 @@ def engdds_compras_main():
             pass
 
         session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                  
+        #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX"
+        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][6]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------          
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Textos de Cabeçalho extraídos com sucesso.')       
 
@@ -440,14 +549,25 @@ def engdds_compras_main():
             pass
 
         session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX"
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                 
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX"
+        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][7]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-                         f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX")
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------  
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
+        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Textos de Cabeçalho extraídos com sucesso.')       
 
