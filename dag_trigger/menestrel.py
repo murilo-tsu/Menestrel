@@ -249,7 +249,7 @@ def extracoes_incrementais():
     from datetime import time as t
     logging.info("Agendamento de extrações :: Hourly Update")
     schedule.clear('incremental')
-    schedule_time = 60
+    schedule_time = 90
 
     # Hourly Task 01 :: Atualiza faturamento
     try:
@@ -276,7 +276,7 @@ logging.basicConfig(filename='menestrel_song.log',
 print_header()
 schedule.every().day.at("00:01").do(clear_terminal_print_logo)
 schedule.every().day.at("00:05").do(extracao_diaria)
-schedule.every().day.at("07:00").do(extracoes_incrementais)
+schedule.every().day.at("08:30").do(extracoes_incrementais)
 
 while True:
     

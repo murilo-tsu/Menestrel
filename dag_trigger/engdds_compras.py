@@ -464,7 +464,8 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_LONGT").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT2").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT3").selected = True
-        session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "HDTXT"
+        # session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "HDTXT"
+        session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "/HDTXT"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
         try:
@@ -540,7 +541,8 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_LONGT").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT2").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT3").selected = True
-        session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "AUXINFO"
+        # session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "AUXINFO"
+        session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "/AUXINFO"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
         try:

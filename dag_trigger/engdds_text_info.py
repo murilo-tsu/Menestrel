@@ -9,6 +9,9 @@ import csv
 from pathlib import Path
 sap = SAPLogin()
 
+def f(num):
+    """Função f() normaliza os números em formato texto"""
+    return f"0{num}" if num < 10 else str(num)
 
 def engdds_text_info_main():
 
@@ -17,10 +20,10 @@ def engdds_text_info_main():
         meta_arquivos = json.load(file)
 
     t0 = time.time()
-    dia = datetime.datetime.today().day
-    mes = datetime.datetime.today().month
-    ano = datetime.datetime.today().year
-    dt = str(ano) + '-' + str(mes) + '-' + str(dia)
+    dia = f(datetime.datetime.today().day)
+    mes = f(datetime.datetime.today().month)
+    ano = f(datetime.datetime.today().year)
+    dt = ano + '-' + mes + '-' + dia
     # path_to_po = 'C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/'
     path_to_po = meta_arquivos['engdds_text_info.py']['path'][0]
     file = meta_arquivos['engdds_text_info.py']['files'][0]
@@ -40,6 +43,7 @@ def engdds_text_info_main():
     arquivos = [filename.replace('.txt','') for filename in os.listdir(path)]
     
     for order in purchase_orders_list:
+        time.sleep(2)
         session = sap.login_to_s4hana()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ME23N"
         session.findById("wnd[0]").sendVKey (0)
@@ -47,19 +51,21 @@ def engdds_text_info_main():
         session.findById("wnd[1]/usr/subSUB0:SAPLMEGUI:0003/ctxtMEPO_SELECT-EBELN").text = order
         session.findById("wnd[1]").sendVKey (0)
         
-        try:
-            try:
-                session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0019/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
-                session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
-            except:
-                try:
-                    session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0015/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
-                    session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0010/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()                    
-                except:
-                    session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
-                    session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
-        except:
-            pass
+        session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0010/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
+
+        # try:
+        #     try:
+        #         session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
+        #         session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
+        #     except:
+        #         try:
+        #             session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0010/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
+        #             session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0010/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()                    
+        #         except:
+        #             session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
+        #             session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0013/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
+        # except:
+        #     pass
 
         try:
             try:
@@ -106,12 +112,14 @@ def engdds_text_info_main():
             print(f"Textos do pedido {order} processados!")
             sap.limpar_processos()
             sap.cleanup()
+            time.sleep(1)
 
         except Exception as erro:
             print(f'Erro ao buscar cabeçalho do pedido {order}')
             print(erro)
             sap.limpar_processos()
             sap.cleanup()
+            time.sleep(1)
             pass
 
         time.sleep(1)
