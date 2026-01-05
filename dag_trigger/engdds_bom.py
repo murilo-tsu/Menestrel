@@ -43,7 +43,10 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/ctxtS_STLAN-LOW").text = "1"
         session.findById("wnd[0]/usr/ctxtS_DATUV-LOW").text = first_date
         session.findById("wnd[0]/usr/ctxtS_VAL_TO-LOW").text = last_date
-        session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+        
+        # 2025-12-09: Criando um layout público para o DATAINSIGHTS
+        # session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+        session.findById("wnd[0]/usr/ctxtP_VARI").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").setFocus()
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
@@ -90,7 +93,10 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/ctxtS_STLAN-LOW").text = "1"
         session.findById("wnd[0]/usr/ctxtS_DATUV-LOW").text = first_date
         session.findById("wnd[0]/usr/ctxtS_VAL_TO-LOW").text = last_date
-        session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+
+        # 2025-12-09: Criando um layout público para o DATAINSIGHTS
+        # session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+        session.findById("wnd[0]/usr/ctxtP_VARI").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").setFocus()
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
@@ -137,7 +143,10 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/ctxtS_STLAN-LOW").text = "1"
         session.findById("wnd[0]/usr/ctxtS_DATUV-LOW").text = first_date
         session.findById("wnd[0]/usr/ctxtS_VAL_TO-LOW").text = last_date
-        session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+
+        # 2025-12-09: Criando um layout público para o DATAINSIGHTS
+        # session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+        session.findById("wnd[0]/usr/ctxtP_VARI").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").setFocus()
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()

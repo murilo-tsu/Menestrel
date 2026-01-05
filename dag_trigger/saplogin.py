@@ -11,7 +11,7 @@ class SAPLogin:
     def __init__(self):
         
         self.username, self.password = sap_crypto().obter_credencias()
-        self.sp_user, self.sp_pass = sp_crypto().credenciais_sharepoint() # << NOVA
+        self.sp_user, self.sp_pass = sp_crypto().credenciais_sharepoint()
         self.connection = None
         self.application = None
         self.session = None
@@ -36,6 +36,49 @@ class SAPLogin:
         self.session.findById("wnd[0]/usr/pwdRSYST-BCODE").text = self.password
         self.session.findById("wnd[0]/usr/txtRSYST-LANGU").text = lang
         self.session.findById("wnd[0]").sendVKey(0)
+
+        # -- LOGON BALANCING --
+        # Caso exista mais de uma sessão aberta no SAP4HANA, as etapas abaixo
+        # são responsáveis por garantir que apenas 01 sessão seja mantida, evitando
+        # que o código quebre durante sua execução.
+        try:
+            # Etapa 01: Verificar se existe uma tela de pop-up
+            popup = self.session.findById("wnd[1]")
+            
+            # Etapa 02: Checar as opções do pop-up para verificar se
+            # se se trata de uma validação de logon
+            try:
+                
+                self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1")
+                print("Multiplos login detectados. Continuar com sessão atual e terminar antigas.")
+                
+                try:
+                    self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1").select()
+                except:
+                    # Caso wnd[1]/usr/ragMULTI_LOGON_OPTI1 não esteja selecionável,
+                    # forçar a seleção do botão de logon. Caso contrário, encerrar.
+                    try:
+                        radio_area = self.session.findById("wnd[1]/usr")
+                        for i in range(radio_area.Children.Count):
+                            child = radio_area.Children(i)
+                            if child.Type == "RadioButton":
+                                if i == 1:
+                                    child.select()
+                                    break
+                    except:
+                        pass
+                
+                # Prosseguir com o login
+                self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
+                
+            except:
+                print(" !!! Tela de pop-up encontrada !!! ")
+                print(" >> Não é uma tela de login << ")
+                pass
+                
+        except:
+            pass
+
         return self.session
     
     def login_to_s4hana(self, lang = 'EN'):

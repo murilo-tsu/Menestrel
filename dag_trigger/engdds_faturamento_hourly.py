@@ -35,7 +35,7 @@ def engdds_faturamento_hourly_main():
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "ZSOP"
+        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/ctxtSO_VKORG-LOW").text = "E600"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-LOW").text = f"{start_day}.{start_month}.{start_year}"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-HIGH").text = f"{end_day}.{end_month}.{end_year}"
@@ -104,7 +104,7 @@ def engdds_faturamento_hourly_main():
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "ZSOP"
+        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/ctxtSO_VKORG-LOW").text = "E890"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-LOW").text = f"{start_day}.{start_month}.{start_year}"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-HIGH").text = f"{end_day}.{end_month}.{end_year}"
@@ -174,7 +174,7 @@ def engdds_faturamento_hourly_main():
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "ZSOP"
+        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/DATAINSIGHT"
         session.findById("wnd[0]/usr/ctxtSO_VKORG-LOW").text = "E900"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-LOW").text = f"{start_day}.{start_month}.{start_year}"
         session.findById("wnd[0]/usr/ctxtFB_FKDAT-HIGH").text = f"{end_day}.{end_month}.{end_year}"

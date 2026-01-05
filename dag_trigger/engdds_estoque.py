@@ -28,7 +28,7 @@ def engdds_estoque_main():
         if domingo:
             primeira_data = date.today() + timedelta(days=-40)
         else:
-            primeira_data = date.today() + timedelta(days=-20)
+            primeira_data = date.today() + timedelta(days=-11)
 
         dates_range = pd.date_range(primeira_data, pd.Timestamp.now(), freq='D')
         dt_comp = [date.strftime('%Y-%m-%d') for date in dates_range]
@@ -46,11 +46,6 @@ def engdds_estoque_main():
             
                 for werk in werks:
                     session = sap.login_to_s4hana()
-                    try:
-                        session.FindById("wnd[0]").SendVKey (0)
-                    except:
-                        pass
-                    session.findById("wnd[0]").maximize()
                     session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_QNTY_PIVB"
                     session.findById("wnd[0]").sendVKey (0)
                     session.findById("wnd[0]/usr/ctxtSO_WERKS-LOW").text = f"{werk}"
@@ -68,7 +63,8 @@ def engdds_estoque_main():
                     session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpINTL/ssubSCREEN_HEADER:SAPLALDB:3020/tblSAPLALDBINTERVAL/ctxtRSCSEL_255-ILOW_I[1,3]").text = "7000000000"
                     session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpINTL/ssubSCREEN_HEADER:SAPLALDB:3020/tblSAPLALDBINTERVAL/ctxtRSCSEL_255-IHIGH_I[2,3]").text = "7999999999"
                     session.findById("wnd[1]/tbar[0]/btn[8]").press()
-                    session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "DATAINSIGHTS"
+                    #session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "DATAINSIGHTS"
+                    session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/DATAINSIGHT"
                     session.findById("wnd[0]/usr/ctxtP_DISVAR").setFocus()
                     session.findById("wnd[0]/usr/ctxtP_DISVAR").caretPosition = 4
                     session.findById("wnd[0]/tbar[1]/btn[8]").press()
