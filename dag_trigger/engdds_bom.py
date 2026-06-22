@@ -51,6 +51,12 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+    
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
@@ -101,6 +107,12 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
@@ -151,6 +163,12 @@ def engdds_bom_main():
         session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+        
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"

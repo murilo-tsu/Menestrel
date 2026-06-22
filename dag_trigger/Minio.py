@@ -2,7 +2,7 @@ from minio import Minio
 from io import BytesIO
 
 class MinioConnector:
-    def __init__ (self, host='10.91.5.107:20000', user='datainsights', pswd='Eurochem123@', secure=False):
+    def __init__ (self, host='10.91.5.107:20000', user='datainsights', pswd='Eurochem123#', secure=False):
         
         self.host=host
         self.user=user

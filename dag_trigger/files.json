@@ -2,38 +2,38 @@
         "engdds_sku.py":
 
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Tabelas",
                 "files":["MARA.XLSX","MAKT.XLSX","ZVMM_MAT_CLASS.XLSX"]
             },
         
         "engdds_compras.py":
 
             {
-                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Compras",
-                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas"],
+                "path":["C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Compras",
+                        "C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Tabelas"],
                 "files":["ME2W.XLSX","ME5A.XLSX","EBAN.XLSX","EKKO.XLSX","EKPO.XLSX",
                          "ZMM_PURDOCS_REPORT.XLSX","ZMM_PURDOCS_HEADERTEXT.XLSX",
-                         "ZMM_PURDOCS_AUXINFO.XLSX"]
+                         "ZMM_PURDOCS_AUXINFO.XLSX","DRAD.XLSX"]
             },
         
         "engdds_bom.py":
             
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/BOM",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/BOM",
                 "files":["ZPP_BOMREP_E890.XLSX", "ZPP_BOMREP_E600.XLSX", "ZPP_BOMREP_E900.XLSX"]
             },
         
         "engdds_cockpit.py":
 
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Cockpit",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Cockpit",
                 "files":["ZPP_COCKPIT.XLSX"]
             },
         
         "engdds_custos.py":
 
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Custos",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Custos",
                 "files":"ZSD_RPLCMNT",
                 "cost_comp": {
         
@@ -49,8 +49,8 @@
         "engdds_estoque.py":
 
             {
-                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Estoque",
-                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas"],
+                "path":["C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Estoque",
+                        "C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Tabelas"],
                 "files":["ZMM_QNTY_PIVB_","ZMB5T.XLSX","MCHB.XLSX"],
                 "sufixo_files":"_ALL.XLSX",
                 "werks":["E60*", "E89*", "E90*", "P60*", "P90*"]
@@ -59,28 +59,51 @@
         "engdds_faturamento.py":
 
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Faturamento",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Faturamento",
                 "files":["ZSD_PIVB_E600.XLSX", "ZSD_PIVB_E890.XLSX", "ZSD_PIVB_E900.XLSX"]   
             },
         
         "engdds_faturamento_hourly.py":
         
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Faturamento",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Faturamento",
                 "files":["ZSD_PIVB_E600_HOURLY.XLSX", "ZSD_PIVB_E890_HOURLY.XLSX", "ZSD_PIVB_E900_HOURLY.XLSX"]  
             },
         
         "engdds_text_info.py":
             {
-                "path":["C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Compras",
-                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/TXT/PO",
-                        "C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/TXT"],
+                "path":["C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Compras",
+                        "C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/TXT/PO",
+                        "C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/TXT"],
                 "files":["ZMM_PURDOCS_REPORT.XLSX","purchase_order_header_text.csv"]
             },
         
         "engdds_werkish.py":
             {
-                "path":"C:/Users/murilo.ribeiro/Desktop/tmpHANA/SAP4HANA/Tabelas",
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Tabelas",
                 "files":["WERKS.XLSX", "LGORT.XLSX", "TVSTT.XLSX"]
+            },
+
+        "engdds_vbak.py":
+            {
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Tabelas",
+                "files":["VBAK.XLSX"]
+            },
+
+        "engdds_gl_accounts.py":
+            {
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/GLAccounts",
+                "files":["2025_ZFI_GL_PIVB.XLSX","2026_ZFI_GL_PIVB.XLSX"]
+            },
+        
+        "position_files.py":
+            {
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/Position"
+            },
+        
+        "engdds_indirect_procurement.py":
+            {
+                "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/IndirectProcurement",
+                "files":["SALITRE_REQUISICOES_ME5A.XLSX","SALITRE_PEDIDOS_ME2L.XLSX","ME3L_CONTRATOS.XLSX"]
             }
 }

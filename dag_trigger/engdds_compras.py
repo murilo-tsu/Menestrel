@@ -195,11 +195,10 @@ def engdds_compras_main():
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------   
         #session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
         # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
-        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[2]/tbar[0]/btn[11]").press()
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
@@ -372,6 +371,7 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YNAC"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "NB"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK"
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").setFocus()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").caretPosition = 2
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
@@ -448,7 +448,8 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,0]").text = "YIMP"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YNAC"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "NB"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK"        
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK" 
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"       
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").setFocus()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").caretPosition = 2
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
@@ -525,7 +526,8 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,0]").text = "YIMP"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YNAC"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "NB"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK"        
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK" 
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"       
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").setFocus()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").caretPosition = 2
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
@@ -575,6 +577,56 @@ def engdds_compras_main():
 
     except Exception as e:
         print(f'Erro ao exportar dados do relatório ZMM_PURDOCS_AUXINFO :: {str(e)}')
+        # Encerrar sessão do SAP
+        sap.limpar_processos()
+        sap.cleanup()
+
+    # Extração da tabela DRAD
+    try:
+
+        session = sap.login_to_s4hana()
+        try:
+            session.FindById("wnd[0]").SendVKey (0)
+        except:
+            pass
+
+        session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
+        session.findById("wnd[0]").sendVKey (0)
+        session.findById("wnd[0]/usr/ctxtGD-TAB").text = "DRAD"
+        session.findById("wnd[0]/usr/txtGD-MAX_LINES").text = ""
+        session.findById("wnd[0]").sendVKey(0)
+        session.findById("wnd[0]/tbar[1]/btn[8]").press()
+        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
+        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL") 
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+              
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][8]
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+
+        # Encerrar sessão do SAP
+        sap.limpar_processos()
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][8])
+        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        sap.cleanup()
+        print('Extração DRAD concluída.')
+    
+    except Exception as e:
+        print(f'Erro ao exportar dados da tabela DRAD :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
