@@ -1,6 +1,8 @@
 import win32com.client
 import subprocess
 import requests
+import threading
+import contextlib
 from datetime import datetime
 from menestrel_encryptor import sap_crypto, sp_crypto
 from requests.auth import HTTPBasicAuth
@@ -118,7 +120,8 @@ class SAPLogin:
         Encerrar os processos em execução e limpar a sessão do SAP4HANA.
         Dessa forma, o processo é liberado para uma nova execução.
         """
-        processos = ['saplogon.exe', 'notepad.exe', 'cmd.exe', 'excel.exe', 'sublime_text.exe']
+        # processos = ['saplogon.exe', 'notepad.exe', 'cmd.exe', 'excel.exe', 'sublime_text.exe']
+        processos = ['saplogon.exe', 'notepad.exe', 'excel.exe', 'sublime_text.exe']
         for processo in processos:
 
             subprocess.run(f'taskkill /f /im {processo}',
@@ -126,7 +129,34 @@ class SAPLogin:
                             stderr=subprocess.DEVNULL, timeout = 2)
         
         print('---> SAP4HANA e processos correlatos encerrados!')
-                    
+
+
+    def kill_excel(self):
+        """
+        Encerra qualquer processo excel.exe órfão antes de iniciar um novo export &XXL,
+        evitando que uma instância travada de uma iteração anterior intercepte o OLE call.
+        """
+        subprocess.run('taskkill /f /im excel.exe',
+                        shell=True, stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL, timeout=2)
+
+
+    @contextlib.contextmanager
+    def export_watchdog(self, timeout=180):
+        """
+        Inicia um watchdog que mata o excel.exe órfão caso o trecho de export &XXL
+        trave por mais de `timeout` segundos. O taskkill roda em outra thread e não
+        toca em objetos COM, então é seguro mesmo com a chamada SAP bloqueada na
+        thread principal — ele só derruba o processo Excel por fora, o que faz a
+        chamada COM travada retornar com erro em vez de travar para sempre.
+        """
+        timer = threading.Timer(timeout, self.kill_excel)
+        timer.start()
+        try:
+            yield
+        finally:
+            timer.cancel()
+
 
     def upload_files(self, sharepoint_folder,local_file_path, ):
         time.sleep(3)
@@ -148,7 +178,7 @@ class SAPLogin:
         # Dados do Servidor
         airflow_url = f"http://10.91.5.107:8080/api/v1/dags/{dag_name}/dagRuns" 
         username = "MRibeiro"
-        password = "desafio102030"
+        password = "@Himura2026airflow"
         
 
         headers = {
