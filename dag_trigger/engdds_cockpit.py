@@ -36,19 +36,21 @@ def engdds_cockpit_main():
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/shellcont/shell").selectColumn ("ZSTEP")
         session.findById("wnd[0]/shellcont/shell").contextMenu()
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        session.findById("wnd[1]").sendVKey (4)
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Cockpit"
-        session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_cockpit.py']['path']
-        # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "ZPP_COCKPIT.XLSX"
-        nome_arquivo = meta_arquivos['engdds_cockpit.py']['files'][0]
-        session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[2]/tbar[0]/btn[11]").press()
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            session.findById("wnd[1]").sendVKey (4)
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Cockpit"
+            session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_cockpit.py']['path']
+            # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "ZPP_COCKPIT.XLSX"
+            nome_arquivo = meta_arquivos['engdds_cockpit.py']['files'][0]
+            session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[2]/tbar[0]/btn[11]").press()
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         sap.limpar_processos()
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json

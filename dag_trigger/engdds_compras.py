@@ -183,23 +183,25 @@ def engdds_compras_main():
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/usr/txtGD-MAX_LINES").text = ""
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")        
-        session.findById("wnd[1]").sendVKey (4)
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[1]").sendVKey (4)
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------   
-        #session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-        # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            #session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+            # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -245,22 +247,24 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,4]").text = "ZUVR"
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")  
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKKO.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][3]
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKKO.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][3]
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -311,22 +315,24 @@ def engdds_compras_main():
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]").sendVKey(0)
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")  
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
-              
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][4]
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
+
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][4]
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -392,22 +398,24 @@ def engdds_compras_main():
         except:
             pass
 
-        session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------        
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX"
-        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][5]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX"
+            nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][5]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
 
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------          
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #              f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
@@ -474,15 +482,17 @@ def engdds_compras_main():
         except:
             pass
 
-        session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                  
-        #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX"
-        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][6]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX"
+            nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][6]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -552,16 +562,18 @@ def engdds_compras_main():
         except:
             pass
 
-        session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                 
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX"
-        nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][7]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX"
+            nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][7]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -596,22 +608,24 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/txtGD-MAX_LINES").text = ""
         session.findById("wnd[0]").sendVKey(0)
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL") 
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
-              
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][8]
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
+
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][8]
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
