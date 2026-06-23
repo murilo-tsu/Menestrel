@@ -77,24 +77,26 @@ def engdds_estoque_full_main():
 
                     session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
                     session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
-                    session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-                    session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+                    sap.kill_excel()
+                    with sap.export_watchdog(180):
+                        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+                        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
 
-                    try:
-                        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-                    except:
-                        pass
+                        try:
+                            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+                        except:
+                            pass
 
-                    # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-                    # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                    
-                    # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
-                    session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
-                    # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
-                    nome_arquivo = f"{dt.year}-{f(dt.month)}-{f(dt.day)} {meta_arquivos['engdds_estoque.py']['files'][0]}{werk[:3]}{meta_arquivos['engdds_estoque.py']['sufixo_files']}"
-                    session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-                    # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                    session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-                    session.findById("wnd[1]/tbar[0]/btn[11]").press()
+                        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+                        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                    
+                        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
+                        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
+                        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
+                        nome_arquivo = f"{dt.year}-{f(dt.month)}-{f(dt.day)} {meta_arquivos['engdds_estoque.py']['files'][0]}{werk[:3]}{meta_arquivos['engdds_estoque.py']['sufixo_files']}"
+                        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+                        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+                        session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
 
                     # Encerrar sessão do SAP
@@ -141,21 +143,23 @@ def engdds_estoque_full_main():
         session.findById("wnd[0]/tbar[1]/btn[43]").press()
         session.findById("wnd[0]/mbar/menu[3]/menu[2]/menu[1]").select()
         session.findById("wnd[1]/usr/subSUB_CONFIGURATION:SAPLSALV_CUL_LAYOUT_CHOOSE:0500/cntlD500_CONTAINER/shellcont/shell").clickCurrentCell()
-        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
-        
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------  
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
-        nome_arquivo = f"{end_year}-{end_month}-{end_day} {meta_arquivos['engdds_estoque.py']['files'][1]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 21
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
+
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
+            nome_arquivo = f"{end_year}-{end_month}-{end_day} {meta_arquivos['engdds_estoque.py']['files'][1]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 21
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -213,22 +217,24 @@ def engdds_estoque_full_main():
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,4]").caretPosition = 1
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO -------------------------------------------------------------------------------------------------------------------------------------------------------- 
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][1]
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "MCHB.XLSX"
-        nome_arquivo = meta_arquivos['engdds_estoque.py']['files'][2]
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO -------------------------------------------------------------------------------------------------------------------------------------------------------- 
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][1]
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "MCHB.XLSX"
+            nome_arquivo = meta_arquivos['engdds_estoque.py']['files'][2]
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
         
         # Encerrar sessão do SAP
         sap.limpar_processos()

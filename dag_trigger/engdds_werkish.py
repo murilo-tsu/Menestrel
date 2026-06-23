@@ -26,25 +26,27 @@ def engdds_werkish_main():
         session.findById("wnd[0]/usr/ctxtGD-TAB").setFocus()
         session.findById("wnd[0]/usr/ctxtGD-TAB").caretPosition = 12
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "WERKS.xlsx"
-        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][0]
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "WERKS.xlsx"
+            nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][0]
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
+
         # Encerrar sessão do SAP
         sap.limpar_processos()
         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
@@ -75,24 +77,26 @@ def engdds_werkish_main():
         session.findById("wnd[0]/usr/txtGD-MAX_LINES").setFocus
         session.findById("wnd[0]/usr/txtGD-MAX_LINES").caretPosition = 0
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "LGORT.xlsx"
-        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][1]
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "LGORT.xlsx"
+            nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][1]
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -124,24 +128,26 @@ def engdds_werkish_main():
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "TVSTT"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/usr/cntlRESULT_LIST/shellcont/shell").selectContextMenuItem ("&XXL")
 
-        try:
-            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except:
+                pass
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
-        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "TVSTT.xlsx"
-        nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][2]
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_werkish.py']['path']
+            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "TVSTT.xlsx"
+            nome_arquivo = meta_arquivos['engdds_werkish.py']['files'][2]
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()

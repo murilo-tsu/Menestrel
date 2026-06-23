@@ -43,27 +43,29 @@ def engdds_faturamento_main():
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
-        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-        # ------------------------------------------------------------------------------------------
-        # Opção 1: usado para extrair um arquivo do tipo .txt
-        #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-        #session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-        #session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        # ------------------------------------------------------------------------------------------
+            # ------------------------------------------------------------------------------------------
+            # Opção 1: usado para extrair um arquivo do tipo .txt
+            #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
+            #session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
+            #session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # ------------------------------------------------------------------------------------------
 
-        # Opção 2: usado para extrair um arquivo do tipo .xlsx
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # Opção 2: usado para extrair um arquivo do tipo .xlsx
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP
@@ -105,27 +107,29 @@ def engdds_faturamento_main():
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
-        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-        # ------------------------------------------------------------------------------------------
-        # Opção 1: usado para extrair um arquivo do tipo .txt
-        #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-        #session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-        #session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        # ------------------------------------------------------------------------------------------
+            # ------------------------------------------------------------------------------------------
+            # Opção 1: usado para extrair um arquivo do tipo .txt
+            #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
+            #session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
+            #session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # ------------------------------------------------------------------------------------------
 
-        # Opção 2: usado para extrair um arquivo do tipo .xlsx
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E890.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # Opção 2: usado para extrair um arquivo do tipo .xlsx
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E890.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP
@@ -167,27 +171,29 @@ def engdds_faturamento_main():
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
-        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-        # ------------------------------------------------------------------------------------------
-        # Opção 1: usado para extrair um arquivo do tipo .txt
-        #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-        #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-        #session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-        #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-        #session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        # ------------------------------------------------------------------------------------------
+            # ------------------------------------------------------------------------------------------
+            # Opção 1: usado para extrair um arquivo do tipo .txt
+            #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
+            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
+            #session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
+            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
+            #session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # ------------------------------------------------------------------------------------------
 
-        # Opção 2: usado para extrair um arquivo do tipo .xlsx
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E900.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # Opção 2: usado para extrair um arquivo do tipo .xlsx
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E900.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP

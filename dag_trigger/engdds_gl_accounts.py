@@ -43,20 +43,22 @@ def engdds_gl_accounts_main():
             pass
     
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
-        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[0]").sendVKey(0) 
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[0]").sendVKey(0) 
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        # folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage"                   
-        folder_path = meta_arquivos['engdds_gl_accounts.py']['path']
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = folder_path
-        nome_arquivo = f"{meta_arquivos['engdds_gl_accounts.py']['files'][0]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            # folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage"                   
+            folder_path = meta_arquivos['engdds_gl_accounts.py']['path']
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = folder_path
+            nome_arquivo = f"{meta_arquivos['engdds_gl_accounts.py']['files'][0]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -97,20 +99,22 @@ def engdds_gl_accounts_main():
             pass
     
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
-        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
-        session.findById("wnd[0]").sendVKey(0) 
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+            session.findById("wnd[0]").sendVKey(0) 
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        #folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage"                   
-        folder_path = meta_arquivos['engdds_gl_accounts.py']['path']
-        session.findById("wnd[1]/usr/ctxtDY_PATH").text = folder_path
-        nome_arquivo = f"{meta_arquivos['engdds_gl_accounts.py']['files'][1]}"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            #folder_path = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\04 - Data Dump\_stage"                   
+            folder_path = meta_arquivos['engdds_gl_accounts.py']['path']
+            session.findById("wnd[1]/usr/ctxtDY_PATH").text = folder_path
+            nome_arquivo = f"{meta_arquivos['engdds_gl_accounts.py']['files'][1]}"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()

@@ -4,7 +4,6 @@ from Minio import MinioConnector
 import pandas as pd
 import json
 import time
-import subprocess
 
 # Instaciador de SAP Session
 sap = SAPLogin()
@@ -44,17 +43,16 @@ def batch_upload():
         session.findById("wnd[0]/usr/ctxtCHARG-LOW").caretPosition = 7
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/tbar[1]/btn[48]").press()
-        session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
-        session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{lote.replace('*','')}.XLSX"
-        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 6
-        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+        sap.kill_excel()
+        with sap.export_watchdog(180):
+            session.findById("wnd[0]/mbar/menu[0]/menu[1]/menu[1]").select()
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{lote.replace('*','')}.XLSX"
+            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 6
+            session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]/tbar[0]/btn[15]").press()
         session.findById("wnd[0]/tbar[0]/btn[15]").press()
         session.findById("wnd[0]/tbar[0]/btn[15]").press()
-    subprocess.run(f'taskkill /f /im excel.exe',
-                shell = True, stdout = subprocess.DEVNULL,
-                stderr = subprocess.DEVNULL, timeout = 2)
     sap.limpar_processos()
 
 # CARREGAR O ESTOQUE
@@ -124,24 +122,26 @@ def get_mat_mov():
 
                         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
                         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
-                        session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
-                        session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
+                        sap.kill_excel()
+                        with sap.export_watchdog(180):
+                            session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+                            session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
 
-                        try:
-                            session.findById("wnd[1]/tbar[0]/btn[0]").press()
-                        except:
-                            pass
+                            try:
+                                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+                            except:
+                                pass
 
-                        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-                        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                    
-                        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
-                        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
-                        # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
-                        nome_arquivo = f"{dt.year}-{f(dt.month)}-{f(dt.day)} {meta_arquivos['engdds_estoque.py']['files'][0]}{werk[:3]}{meta_arquivos['engdds_estoque.py']['sufixo_files']}"
-                        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-                        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
-                        session.findById("wnd[1]/tbar[0]/btn[11]").press()
+                            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+                            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+                            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Estoque"
+                            session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][0]
+                            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{dt.year}-{f(dt.month)}-{f(dt.day)} ZMM_QNTY_PIVB_{werk[:3]}_ALL.XLSX"
+                            nome_arquivo = f"{dt.year}-{f(dt.month)}-{f(dt.day)} {meta_arquivos['engdds_estoque.py']['files'][0]}{werk[:3]}{meta_arquivos['engdds_estoque.py']['sufixo_files']}"
+                            session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+                            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 10
+                            session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
 
                         # Encerrar sessão do SAP
