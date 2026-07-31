@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def engdds_faturamento_hourly_main():
@@ -87,7 +88,7 @@ def engdds_faturamento_hourly_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E600_HOURLY.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
@@ -158,7 +159,7 @@ def engdds_faturamento_hourly_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                 r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E890_HOURLY.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
@@ -230,17 +231,18 @@ def engdds_faturamento_hourly_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E900_HOURLY.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # -------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZSD_PIVB :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(5)
+    minio.flush_pending_uploads()
     # Os fluxos deixaram de triggar as dags
     #sap.trigger_airflow_dag(dag_name="engdds_faturamento")
 

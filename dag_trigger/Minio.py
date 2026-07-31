@@ -1,3 +1,5 @@
+import logging
+import time
 from minio import Minio
 from io import BytesIO
 
@@ -9,6 +11,7 @@ class MinioConnector:
         self.pswd=pswd
         self.secure=secure
         self.client=False
+        self._pending_uploads=[]
 
     def _connect(self):
 
@@ -41,20 +44,57 @@ class MinioConnector:
             return True
         except:
             return False
-    def upload_from_bytesIO(self, data, bucket, remote_path):
-        try:
-            self._checkConnection()
-            self.client.put_object(
-                bucket,
-                remote_path,
-                data,
-                data.getbuffer().nbytes
-            )
+    def upload_from_bytesIO(self, data, bucket, remote_path, max_retries=3, retry_delay=5):
+        for attempt in range(1, max_retries + 1):
+            try:
+                self._checkConnection()
+                data.seek(0)
+                self.client.put_object(
+                    bucket,
+                    remote_path,
+                    data,
+                    data.getbuffer().nbytes
+                )
+                return True
+            except Exception as erro:
+                logging.error(f"Falha upload MinIO {bucket}/{remote_path} (tentativa {attempt}/{max_retries}): {erro}")
+                if attempt < max_retries:
+                    time.sleep(retry_delay)
 
+        return False
+
+    def upload_or_queue(self, data, bucket, remote_path, max_retries=3, retry_delay=5):
+        # Falha aqui não interrompe o chamador: enfileira para flush_pending_uploads() tentar depois.
+        if self.upload_from_bytesIO(data, bucket, remote_path, max_retries, retry_delay):
             return True
-        except:
-            return False
-        
+
+        data.seek(0)
+        self._pending_uploads.append((data.read(), bucket, remote_path))
+        logging.error(f"Upload de {bucket}/{remote_path} falhou após {max_retries} tentativas; adicionado à fila de reenvio.")
+        return False
+
+    def flush_pending_uploads(self, max_rounds=5, retry_delay=30):
+        if not self._pending_uploads:
+            return True
+
+        for round_num in range(1, max_rounds + 1):
+            ainda_pendentes = []
+            for content, bucket, remote_path in self._pending_uploads:
+                if not self.upload_from_bytesIO(BytesIO(content), bucket, remote_path):
+                    ainda_pendentes.append((content, bucket, remote_path))
+            self._pending_uploads = ainda_pendentes
+
+            if not self._pending_uploads:
+                return True
+
+            logging.error(f"Fila de upload MinIO :: {len(self._pending_uploads)} arquivo(s) ainda pendente(s) após rodada {round_num}/{max_rounds}.")
+            if round_num < max_rounds:
+                time.sleep(retry_delay)
+
+        for _, bucket, remote_path in self._pending_uploads:
+            logging.error(f"Falha definitiva no upload de {bucket}/{remote_path} após {max_rounds} rodadas de reenvio.")
+        return False
+
     def download_file(self, bucket, remote_path, local_path):
         try:
             self._checkConnection()

@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def engdds_cockpit_main():
@@ -58,14 +59,16 @@ def engdds_cockpit_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Cockpit/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Cockpit/ZPP_COCKPIT.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_cockpit.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-    
+
     except Exception as erro:
-        print('Erro ao exportar o ZPP_COCKPIT.XLSX')
+        logging.error(f'Erro ao exportar o ZPP_COCKPIT.XLSX :: {str(erro)}')
         sap.limpar_processos()
         sap.cleanup()
+
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_cockpit_main()

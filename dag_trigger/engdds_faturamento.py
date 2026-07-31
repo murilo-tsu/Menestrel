@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def engdds_faturamento_main():
@@ -88,12 +89,12 @@ def engdds_faturamento_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E600.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZSD_PIVB_E600 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E600 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -163,12 +164,12 @@ def engdds_faturamento_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E890.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZSD_PIVB_E890 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E890 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -238,17 +239,18 @@ def engdds_faturamento_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
         #                 r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E900.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZSD_PIVB_E900 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E900 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(10)
+    minio.flush_pending_uploads()
     # sap.trigger_airflow_dag(dag_name="engdds_faturamento")
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def engdds_indirect_procurement_main():
@@ -57,11 +58,11 @@ def engdds_indirect_procurement_main():
 
         # Gravar no MinIO
         arquivo = minio.buffer_creator(meta_arquivos['engdds_indirect_procurement.py']['path'],nome_arquivo)
-        minio.upload_from_bytesIO(arquivo,'tmp',nome_arquivo)
+        minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
         sap.cleanup()
 
     except Exception as erro:
-        print(f'Erro ao exportar dados do relatório ME5A = {erro}')
+        logging.error(f'Erro ao exportar dados do relatório ME5A = {erro}')
         sap.limpar_processos()
         sap.cleanup()
 
@@ -120,11 +121,11 @@ def engdds_indirect_procurement_main():
 
         # Gravar no MinIO
         arquivo = minio.buffer_creator(meta_arquivos['engdds_indirect_procurement.py']['path'],nome_arquivo)
-        minio.upload_from_bytesIO(arquivo,'tmp',nome_arquivo)
+        minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
         sap.cleanup()
 
     except Exception as erro:
-        print(f'Erro ao exportar dados do relatório ME2L = {erro}')
+        logging.error(f'Erro ao exportar dados do relatório ME2L = {erro}')
         sap.limpar_processos()
         sap.cleanup()
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -170,14 +171,16 @@ def engdds_indirect_procurement_main():
 
         # Gravar no MinIO
         arquivo = minio.buffer_creator(meta_arquivos['engdds_indirect_procurement.py']['path'],nome_arquivo)
-        minio.upload_from_bytesIO(arquivo,'tmp',nome_arquivo)
+        minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
         sap.cleanup()
 
     except Exception as erro:
-        print(f'Erro ao exportar dados do relatório ME3L = {erro}')
+        logging.error(f'Erro ao exportar dados do relatório ME3L = {erro}')
         sap.limpar_processos()
         sap.cleanup()
     # ----------------------------------------------------------------------------------------------------------------------------------------------------
+
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_indirect_procurement_main()

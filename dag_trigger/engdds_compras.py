@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def f(num):
@@ -76,13 +77,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0],nome_arquivo)
-        minio.upload_from_bytesIO(arquivo,'tmp',nome_arquivo)
+        minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração da ME2W concluída.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ME2W :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ME2W :: {str(e)}')
         sap.limpar_processos()
         sap.cleanup()
 
@@ -148,13 +149,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------        
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração da ME5A concluída.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ME5A :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ME5A :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -210,13 +211,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EBAN.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][2])
-        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][2])
+        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][2])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EBAN concluída.')
 
-    except:
-        print(f'Erro ao exportar dados da tabela EBAN :: {str(e)}')
+    except Exception as e:
+        logging.error(f'Erro ao exportar dados da tabela EBAN :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()        
@@ -273,13 +274,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKKO.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][3])
-        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][3])
+        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][3])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EKKO concluída.')
 
-    except:
-        print(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
+    except Exception as e:
+        logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()   
@@ -341,13 +342,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][4])
-        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][4])
+        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][4])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração EKPO concluída.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
+        logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -419,14 +420,14 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #              f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         sap.cleanup()
         print('Extração ZMM_PURDOCS_REPORT concluída.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMM_PURDOCS_REPORT :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_REPORT :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -501,13 +502,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Textos de Cabeçalho extraídos com sucesso.')       
+        print('Textos de Cabeçalho extraídos com sucesso.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMM_PURDOCS_HEADERTEXT :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_HEADERTEXT :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -582,13 +583,13 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Textos de Cabeçalho extraídos com sucesso.')       
+        print('Textos de Cabeçalho extraídos com sucesso.')
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMM_PURDOCS_AUXINFO :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_AUXINFO :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -634,18 +635,19 @@ def engdds_compras_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][8])
-        minio.upload_from_bytesIO(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
+        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
         print('Extração DRAD concluída.')
-    
+
     except Exception as e:
-        print(f'Erro ao exportar dados da tabela DRAD :: {str(e)}')
+        logging.error(f'Erro ao exportar dados da tabela DRAD :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(10)
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_compras_main()

@@ -5,6 +5,7 @@ import pandas as pd
 import json
 import time
 import os
+import logging
 
 def f(num):
     """Função f() normaliza os números em formato texto"""
@@ -103,19 +104,19 @@ def engdds_estoque_full_main():
                     sap.limpar_processos()
                     time.sleep(5)
                     arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][0], nome_arquivo)
-                    minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+                    minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
                     sap.cleanup()
 
                 print(f'{dt.year}-{f(dt.month)}-{f(dt.day)} :: DADOS GRAVADOS!')
-            
+
             except Exception as erro:
-                print(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
-                print(f"Mensagem de erro :: {str(erro)}")
+                logging.error(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
+                logging.error(f"Mensagem de erro :: {str(erro)}")
                 sap.limpar_processos()
                 sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -164,11 +165,11 @@ def engdds_estoque_full_main():
         # Encerrar sessão do SAP
         sap.limpar_processos()
         arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][0], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         sap.cleanup()
-        
+
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMB5T :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMB5T :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -239,16 +240,17 @@ def engdds_estoque_full_main():
         # Encerrar sessão do SAP
         sap.limpar_processos()
         arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][1], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
-        sap.cleanup()  
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
+        sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: MCHB :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: MCHB :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(10)
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_estoque_full_main()

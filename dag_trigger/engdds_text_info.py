@@ -7,6 +7,7 @@ import json
 import time
 import os
 import csv
+import logging
 from pathlib import Path
 sap = SAPLogin()
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -178,7 +179,8 @@ def engdds_text_info_main():
                 writer.writerow([arquivo, info])
     
     arquivo = minio.buffer_creator(final_path, meta_arquivos['engdds_text_info.py']['files'][1])
-    minio.upload_from_bytesIO(arquivo,'tmp',meta_arquivos['engdds_text_info.py']['files'][1])
+    minio.upload_or_queue(arquivo,'tmp',meta_arquivos['engdds_text_info.py']['files'][1])
+    minio.flush_pending_uploads()
     t1 = time.time()
     print(f'O script durou {round((t1-t0)/60,2)} minutos')
 

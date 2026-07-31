@@ -5,6 +5,7 @@ import shutil
 import time
 import json
 import os
+import logging
 sap = SAPLogin()
 
 def f(num):
@@ -75,7 +76,7 @@ def position_files_main():
         pass
 
     arquivo = minio.buffer_creator(meta_arquivos['position_files.py']['path'], file_name)
-    minio.upload_from_bytesIO(arquivo,'tmp',file_name)
+    minio.upload_or_queue(arquivo,'tmp',file_name)
 
     # ::::::::::::::::::::::::::::::::::::::::
     # :: ZMM_QNTY_PIVB
@@ -146,7 +147,7 @@ def position_files_main():
         pass
 
     arquivo = minio.buffer_creator(meta_arquivos['position_files.py']['path'], file_name)
-    minio.upload_from_bytesIO(arquivo,'tmp',file_name)
+    minio.upload_or_queue(arquivo,'tmp',file_name)
 
     # ::::::::::::::::::::::::::::::::::::::::
     # :: ZMM_PURDOCS_REPORT
@@ -198,7 +199,9 @@ def position_files_main():
         pass
 
     arquivo = minio.buffer_creator(meta_arquivos['position_files.py']['path'], file_name)
-    minio.upload_from_bytesIO(arquivo,'tmp',file_name)
+    minio.upload_or_queue(arquivo,'tmp',file_name)
+
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     position_files_main()

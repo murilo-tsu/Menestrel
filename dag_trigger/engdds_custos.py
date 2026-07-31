@@ -4,6 +4,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def f(num):
@@ -79,12 +80,14 @@ def engdds_custos_main():
             # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Custos/",
             #                 caminho_arquivo)
             arquivo = minio.buffer_creator(meta_arquivos['engdds_custos.py']['path'], nome_arquivo)
-            minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+            minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
             # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
             sap.cleanup()
-        
+
         except Exception as erro:
-            print(f'Erro ao exportar dados do relatório ZSD_RPLCMNT_COST{value} :: {str(erro)}')
+            logging.error(f'Erro ao exportar dados do relatório ZSD_RPLCMNT_COST{value} :: {str(erro)}')
+
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_custos_main()

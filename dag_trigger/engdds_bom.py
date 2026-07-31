@@ -6,6 +6,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def f(num):
@@ -75,12 +76,12 @@ def engdds_bom_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E890.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZPP_BOMREP para E890 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZPP_BOMREP para E890 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -131,12 +132,12 @@ def engdds_bom_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZPP_BOMREP para E600 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZPP_BOMREP para E600 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -188,17 +189,18 @@ def engdds_bom_main():
         # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
         #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # -------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZPP_BOMREP para E900 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZPP_BOMREP para E900 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(10)
+    minio.flush_pending_uploads()
 
 
 if __name__ == "__main__":

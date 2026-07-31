@@ -3,6 +3,7 @@ from Minio import MinioConnector
 import time
 import json
 import os
+import logging
 sap = SAPLogin()
 
 def engdds_werkish_main():
@@ -54,7 +55,7 @@ def engdds_werkish_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/WERKS.xlsx")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
@@ -105,13 +106,13 @@ def engdds_werkish_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/LGORT.xlsx")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: ZVMM_LGORT_2 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: ZVMM_LGORT_2 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -156,17 +157,18 @@ def engdds_werkish_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/TVSTT.xlsx")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_werkish.py']['path'], nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: TVSTT :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: TVSTT :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(10)
+    minio.flush_pending_uploads()
     # sap.trigger_airflow_dag(dag_name="engdds_units")
 
 if __name__ == "__main__":

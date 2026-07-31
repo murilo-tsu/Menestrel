@@ -83,12 +83,12 @@ def engdds_sku_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/MARA.xlsx")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_sku.py']['path'], meta_arquivos['engdds_sku.py']['files'][0])
-        minio.upload_from_bytesIO(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][0])
+        minio.upload_or_queue(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][0])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        
+
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: MARA :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: MARA :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -157,12 +157,12 @@ def engdds_sku_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/MAKT.XLSX") 
         arquivo = minio.buffer_creator(meta_arquivos['engdds_sku.py']['path'], meta_arquivos['engdds_sku.py']['files'][1])
-        minio.upload_from_bytesIO(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][1])
+        minio.upload_or_queue(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][1])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        
+
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: MAKT :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: MAKT :: {str(e)}')
         sap.limpar_processos()
         sap.cleanup()
 
@@ -227,17 +227,18 @@ def engdds_sku_main():
         # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Tabelas",
         #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/ZVMM_MAT_CLASS.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_sku.py']['path'], meta_arquivos['engdds_sku.py']['files'][2])
-        minio.upload_from_bytesIO(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][2])
+        minio.upload_or_queue(arquivo,'tmp',meta_arquivos['engdds_sku.py']['files'][2])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        
+
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório SE16N :: ZVMM_MAT_CLASS :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório SE16N :: ZVMM_MAT_CLASS :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
     
     time.sleep(10)
+    minio.flush_pending_uploads()
 
 if __name__ == "__main__":
     engdds_sku_main()

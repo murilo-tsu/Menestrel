@@ -4,6 +4,7 @@ from Minio import MinioConnector
 import pandas as pd
 import json
 import time
+import logging
 
 # Instaciador de SAP Session
 sap = SAPLogin()
@@ -148,22 +149,24 @@ def get_mat_mov():
                         sap.limpar_processos()
                         time.sleep(5)
                         arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][0], nome_arquivo)
-                        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+                        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
                         sap.cleanup()
 
                     print(f'{dt.year}-{f(dt.month)}-{f(dt.day)} :: DADOS GRAVADOS!')
-                
+
                 except Exception as erro:
-                    print(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
-                    print(f"Mensagem de erro :: {str(erro)}")
+                    logging.error(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
+                    logging.error(f"Mensagem de erro :: {str(erro)}")
                     sap.limpar_processos()
                     sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
+
+    minio.flush_pending_uploads()
 
 if __name__ == '__main__':
     what_to_do = 'batch_upload'

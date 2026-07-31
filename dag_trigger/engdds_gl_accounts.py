@@ -5,6 +5,7 @@ import datetime
 import json
 import time
 import os
+import logging
 sap = SAPLogin()
 
 def f(num):
@@ -65,11 +66,11 @@ def engdds_gl_accounts_main():
         time.sleep(5)
         # arquivo = minio.buffer_creator(meta_arquivos['engdds_gl_accounts.py']['path'][0], nome_arquivo)
         arquivo = minio.buffer_creator(folder_path, nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZFI_GL_PIVB para 2025 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZFI_GL_PIVB para 2025 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
@@ -121,16 +122,17 @@ def engdds_gl_accounts_main():
         time.sleep(5)
         # arquivo = minio.buffer_creator(meta_arquivos['engdds_gl_accounts.py']['path'][0], nome_arquivo)
         arquivo = minio.buffer_creator(folder_path, nome_arquivo)
-        minio.upload_from_bytesIO(arquivo, 'tmp', nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         sap.cleanup()
 
     except Exception as e:
-        print(f'Erro ao exportar dados do relatório ZFI_GL_PIVB para 2026 :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZFI_GL_PIVB para 2026 :: {str(e)}')
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()
 
     time.sleep(2)
+    minio.flush_pending_uploads()
 
 
 if __name__ == "__main__":
