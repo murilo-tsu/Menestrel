@@ -86,6 +86,8 @@ def engdds_custos_main():
 
         except Exception as erro:
             logging.error(f'Erro ao exportar dados do relatório ZSD_RPLCMNT_COST{value} :: {str(erro)}')
+            sap.limpar_processos()
+            sap.cleanup()
 
     minio.flush_pending_uploads()
 

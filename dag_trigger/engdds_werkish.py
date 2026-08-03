@@ -61,6 +61,7 @@ def engdds_werkish_main():
 
     finally:
         # Always clean up
+        sap.limpar_processos()
         sap.cleanup()
 
     # LGORT :: CADASTRO DE DEPÓSITOS

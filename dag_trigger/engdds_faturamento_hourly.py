@@ -93,6 +93,7 @@ def engdds_faturamento_hourly_main():
         sap.cleanup()
 
     finally:
+        sap.limpar_processos()
         sap.cleanup()
 
     try:
@@ -164,6 +165,7 @@ def engdds_faturamento_hourly_main():
         sap.cleanup()
 
     finally:
+        sap.limpar_processos()
         sap.cleanup()
 
 
