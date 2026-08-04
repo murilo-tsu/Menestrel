@@ -470,8 +470,8 @@ print_header()
 # Rodadas diárias
 schedule.every().day.at("00:01").do(clear_terminal_print_logo)
 schedule.every().day.at("00:05").do(extracao_diaria)
-schedule.every().day.at("07:30").do(task09)
-schedule.every().day.at("18:05").do(task13)
+schedule.every().day.at("07:30").do(run_with_retry, task09, task_name="TEXT_INFO")
+schedule.every().day.at("18:05").do(run_with_retry, task13, task_name="ESTOQUE_FULL")
 
 # Extrações incrementais
 schedule_time = 120
