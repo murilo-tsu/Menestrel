@@ -86,7 +86,7 @@ def engdds_bom_main():
         sap.limpar_processos()
         sap.cleanup()
 
-    # E600 :: EUROCHEM FERTILIZANTES TOCANTINS
+    # E600 :: PART 1 :: EUROCHEM FERTILIZANTES TOCANTINS
     try:
 
         session = sap.login_to_s4hana()
@@ -96,7 +96,8 @@ def engdds_bom_main():
             pass
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZPP_BOMREP"
         session.findById("wnd[0]").sendVKey (0)
-        session.findById("wnd[0]/usr/ctxtS_WERKS-LOW").text = "E60*"
+        session.findById("wnd[0]/usr/ctxtS_WERKS-LOW").text = "E60A"
+        session.findById("wnd[0]/usr/ctxtS_WERKS-HIGH").text = "E60E"
         session.findById("wnd[0]/usr/ctxtS_STLAN-LOW").text = "1"
         session.findById("wnd[0]/usr/ctxtS_DATUV-LOW").text = first_date
         session.findById("wnd[0]/usr/ctxtS_VAL_TO-LOW").text = last_date
@@ -119,6 +120,63 @@ def engdds_bom_main():
         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
         nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][1]}"
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
+        session.findById("wnd[1]").sendVKey (0)
+        print('ZPP_BOM_REP_E600.XLSX salvo com sucesso!')
+
+        # Encerrar sessão do SAP
+        sap.limpar_processos()
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/BOM/",
+        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/BOM/{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E600.XLSX")
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_bom.py']['path'], nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
+        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        sap.cleanup()
+
+    except Exception as e:
+        logging.error(f'Erro ao exportar dados do relatório ZPP_BOMREP para E600 :: {str(e)}')
+        # Encerrar sessão do SAP
+        sap.limpar_processos()
+        sap.cleanup()
+
+    # E600 :: PART 2 :: EUROCHEM FERTILIZANTES TOCANTINS
+    try:
+
+        session = sap.login_to_s4hana()
+        try:
+            session.FindById("wnd[0]").SendVKey (0)
+        except:
+            pass
+        session.findById("wnd[0]/tbar[0]/okcd").text = "ZPP_BOMREP"
+        session.findById("wnd[0]").sendVKey (0)
+        session.findById("wnd[0]/usr/ctxtS_WERKS-LOW").text = "E60F"
+        session.findById("wnd[0]/usr/ctxtS_WERKS-HIGH").text = "E60Z"
+        session.findById("wnd[0]/usr/ctxtS_STLAN-LOW").text = "1"
+        session.findById("wnd[0]/usr/ctxtS_DATUV-LOW").text = first_date
+        session.findById("wnd[0]/usr/ctxtS_VAL_TO-LOW").text = last_date
+
+        # 2025-12-09: Criando um layout público para o DATAINSIGHTS
+        # session.findById("wnd[0]/usr/ctxtP_VARI").text = "DATAINSIGHTS"
+        session.findById("wnd[0]/usr/ctxtP_VARI").text = "/DATAINSIGHT"
+        session.findById("wnd[0]/usr/txtS_STLAL-LOW").setFocus()
+        session.findById("wnd[0]/usr/txtS_STLAL-LOW").caretPosition = 0
+        session.findById("wnd[0]/tbar[1]/btn[8]").press()
+        session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+
+        try:
+            session.findById("wnd[1]/tbar[0]/btn[0]").press()
+        except:
+            pass
+
+        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
+        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
+        session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
+        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][2]}"
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
@@ -175,7 +233,7 @@ def engdds_bom_main():
         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\BOM"
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_bom.py']['path']
         # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_bom}-{end_month_bom}-{end_day_bom} ZPP_BOMREP_E900.XLSX"
-        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][2]}"
+        nome_arquivo = f"{end_year_bom}-{end_month_bom}-{end_day_bom} {meta_arquivos['engdds_bom.py']['files'][3]}"
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8

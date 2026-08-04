@@ -20,7 +20,8 @@
             
             {
                 "path":"C:/SAP4HANA-Scripts/tmpHANA/SAP4HANA/BOM",
-                "files":["ZPP_BOMREP_E890.XLSX", "ZPP_BOMREP_E600.XLSX", "ZPP_BOMREP_E900.XLSX"]
+                "files":["ZPP_BOMREP_E890.XLSX", "ZPP_BOMREP_E600_part1.XLSX",
+                         "ZPP_BOMREP_E600_part2.XLSX", "ZPP_BOMREP_E900.XLSX"]
             },
         
         "engdds_cockpit.py":
