@@ -28,7 +28,6 @@ def engdds_faturamento_main():
 
         session = sap.login_to_s4hana()
         # Extrair E600
-        print("LOGIN no SAP4HANA realizado!")
         try:
             session.FindById("wnd[0]").SendVKey (0)
         except:
@@ -183,7 +182,6 @@ def engdds_faturamento_main():
             session.FindById("wnd[0]").SendVKey (0)
         except:
             pass
-        print("LOGIN no SAP4HANA realizado!")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)

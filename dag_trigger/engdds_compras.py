@@ -31,7 +31,7 @@ def engdds_compras_main():
             session.FindById("wnd[0]").SendVKey (0)
         except:
             pass
-        print("Iniciando extração da ME2W!")
+        print("Iniciando extração: ME2W")
         session.findById("wnd[0]/tbar[0]/okcd").text = "ME2W"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/btn%_EW_EKORG_%_APP_%-VALU_PUSH").press()
@@ -80,7 +80,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração da ME2W concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados do relatório ME2W :: {str(e)}')
@@ -96,7 +96,7 @@ def engdds_compras_main():
         except:
             pass
 
-        print("Iniciando extração da ME5A!")
+        print("Iniciando extração: ME5A")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ME5A"
         session.findById("wnd[0]").sendVKey (0)
@@ -152,7 +152,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração da ME5A concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados do relatório ME5A :: {str(e)}')
@@ -168,6 +168,7 @@ def engdds_compras_main():
             session.FindById("wnd[0]").SendVKey (0)
         except:
             pass
+        print("Iniciando extração: EBAN")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
@@ -214,7 +215,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][2])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração EBAN concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][2]}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados da tabela EBAN :: {str(e)}')
@@ -232,6 +233,7 @@ def engdds_compras_main():
         except:
             pass
 
+        print("Iniciando extração: EKKO")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "EKKO"
@@ -277,7 +279,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][3])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração EKKO concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][3]}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
@@ -294,6 +296,7 @@ def engdds_compras_main():
         except:
             pass
 
+        print("Iniciando extração: EKPO")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "EKPO"
@@ -345,7 +348,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][4])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração EKPO concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][4]}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
@@ -362,7 +365,7 @@ def engdds_compras_main():
         except:
             pass
 
-        print("Iniciando extração ZMM_PURDOCS_REPORT!")   
+        print("Iniciando extração: ZMM_PURDOCS_REPORT")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -424,7 +427,7 @@ def engdds_compras_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
         sap.cleanup()
-        print('Extração ZMM_PURDOCS_REPORT concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_REPORT :: {str(e)}')
@@ -442,7 +445,7 @@ def engdds_compras_main():
         except:
             pass
 
-        print("Iniciando extração ZMM_PURDOCS_REPORT - HEADER TEXT!")   
+        print("Iniciando extração: ZMM_PURDOCS_REPORT (HEADER TEXT)")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -505,7 +508,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Textos de Cabeçalho extraídos com sucesso.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_HEADERTEXT :: {str(e)}')
@@ -522,7 +525,7 @@ def engdds_compras_main():
             session.FindById("wnd[0]").SendVKey (0)
         except:
             pass
-        print("Iniciando extração ZMM_PURDOCS_REPORT - INFORMAÇÕES AUXILIARES!")   
+        print("Iniciando extração: ZMM_PURDOCS_REPORT (AUXINFO)")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -586,7 +589,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Textos de Cabeçalho extraídos com sucesso.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_AUXINFO :: {str(e)}')
@@ -603,6 +606,7 @@ def engdds_compras_main():
         except:
             pass
 
+        print("Iniciando extração: DRAD")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "DRAD"
@@ -638,7 +642,7 @@ def engdds_compras_main():
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print('Extração DRAD concluída.')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][8]}")
 
     except Exception as e:
         logging.error(f'Erro ao exportar dados da tabela DRAD :: {str(e)}')

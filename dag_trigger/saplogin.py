@@ -52,7 +52,7 @@ class SAPLogin:
             try:
                 
                 self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1")
-                print("Multiplos login detectados. Continuar com sessão atual e terminar antigas.")
+                print("Múltiplos logins detectados — mantendo sessão atual e encerrando as antigas.")
                 
                 try:
                     self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1").select()
@@ -74,8 +74,7 @@ class SAPLogin:
                 self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
                 
             except:
-                print(" !!! Tela de pop-up encontrada !!! ")
-                print(" >> Não é uma tela de login << ")
+                print("Pop-up inesperado durante o login (ignorado)")
                 pass
                 
         except:
@@ -87,7 +86,7 @@ class SAPLogin:
         """Login SAP4HANA"""
         try:
             self._initialize_sap_gui()
-            print('---> SAP4HANA logado com sucesso!')
+            print('SAP :: sessão iniciada')
             return self._perform_login("SAP S/4 HANA PROD", lang)
         except Exception as e:
             self.cleanup()
@@ -128,7 +127,7 @@ class SAPLogin:
                             shell = True, stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, timeout = 2)
         
-        print('---> SAP4HANA e processos correlatos encerrados!')
+        print('SAP :: processos encerrados')
 
 
     def kill_excel(self):

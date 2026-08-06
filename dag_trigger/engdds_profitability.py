@@ -126,7 +126,6 @@ def engdds_sku_main():
     try:
 
         session = sap.login_to_s4hana()
-        print("Login ao SAP4HANA com sucesso.")   
         try:
             session.FindById("wnd[0]").SendVKey (0)
         except:

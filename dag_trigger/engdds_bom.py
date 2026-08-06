@@ -67,7 +67,7 @@ def engdds_bom_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
-        print('ZPP_BOM_REP_E890.XLSX salvo com sucesso!')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_bom.py']['path']}/{nome_arquivo}")
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -124,7 +124,7 @@ def engdds_bom_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
-        print('ZPP_BOM_REP_E600.XLSX salvo com sucesso!')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_bom.py']['path']}/{nome_arquivo}")
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -181,7 +181,7 @@ def engdds_bom_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
-        print('ZPP_BOM_REP_E600.XLSX salvo com sucesso!')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_bom.py']['path']}/{nome_arquivo}")
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
@@ -238,7 +238,7 @@ def engdds_bom_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 8
         session.findById("wnd[1]").sendVKey (0)
-        print('ZPP_BOM_REP_E900.XLSX salvo com sucesso!')
+        print(f"ATUALIZADO: {meta_arquivos['engdds_bom.py']['path']}/{nome_arquivo}")
 
         # Encerrar sessão do SAP
         sap.limpar_processos()

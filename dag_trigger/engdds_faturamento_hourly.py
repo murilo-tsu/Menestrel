@@ -100,7 +100,6 @@ def engdds_faturamento_hourly_main():
 
         session = sap.login_to_s4hana()
         # Extrair E890
-        print("Login Efetuado :: SAP4HANA")
         try:
             session.FindById("wnd[0]").SendVKey (0)
         except:
@@ -173,7 +172,6 @@ def engdds_faturamento_hourly_main():
 
         session = sap.login_to_s4hana()
         # Extrair E890
-        print("Login Efetuado :: SAP4HANA")
         try:
             session.FindById("wnd[0]").SendVKey (0)
         except:
