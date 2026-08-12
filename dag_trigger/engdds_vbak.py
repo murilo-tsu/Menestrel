@@ -9,6 +9,7 @@ import os
 sap = SAPLogin()
 
 def engdds_vbak_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_VBAK.PY ----")
     
     minio = MinioConnector()
     with open('files.json', 'r') as file:

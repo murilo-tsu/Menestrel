@@ -7,6 +7,7 @@ import os
 sap = SAPLogin()
 
 def engdds_sku_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_SKU.PY ----")
     
     minio = MinioConnector()
     with open('files.json', 'r') as file:

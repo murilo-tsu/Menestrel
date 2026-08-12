@@ -8,6 +8,7 @@ import logging
 sap = SAPLogin()
 
 def engdds_faturamento_hourly_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_FATURAMENTO_HOURLY.PY ----")
     
     minio = MinioConnector()
     with open('files.json', 'rb') as file:

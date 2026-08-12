@@ -12,6 +12,7 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def engdds_custos_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_CUSTOS.PY ----")
 
     # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
     minio = MinioConnector()

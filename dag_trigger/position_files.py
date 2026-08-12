@@ -13,6 +13,7 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def position_files_main():
+    logging.info("---- INICIANDO PROCESSO: POSITION_FILES.PY ----")
     # ::::::::::::::::::::::::::::::::::::::::
     # :: MB52 - ESTOQUE
     # ::::::::::::::::::::::::::::::::::::::::

@@ -61,6 +61,7 @@ def navega_ordem_compra(session):
 # -------------------------------------------------------------------- MAIN ---------------------------------------------------------------------------------
 # FUNÇÃO: EXECUÇÃO PRINCIPAL DA LÓGICA DE EXTRAÇÃO
 def engdds_text_info_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_TEXT_INFO.PY ----")
 
     minio = MinioConnector()
     with open('files.json', 'rb') as file:

@@ -49,6 +49,19 @@ TASK_RETRIES = 2      # tentativas por task
 RETRY_DELAY = 60      # segundos entre tentativas
 
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
+# ║ WATCHDOG EXTERNO :: arquivos de sinal de vida lidos por watchdog_menestrel.py     ║
+# ╚══════════════════════════════════════════════════════════════════════════════════╝
+
+PID_FILE = 'menestrel.pid'
+HEARTBEAT_FILE = 'menestrel_heartbeat.txt'
+
+
+def escrever_heartbeat():
+    """Sinaliza ao watchdog externo que o loop principal não está travado."""
+    with open(HEARTBEAT_FILE, 'w') as f:
+        f.write(str(time.time()))
+
+# ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ FUNÇÕES UTILITÁRIAS                                                              ║
 # ╚══════════════════════════════════════════════════════════════════════════════════╝
 
@@ -120,6 +133,9 @@ def limpar_variaveis():
         # Resiliência — lock, retry, constantes
         'run_with_retry', 'sap_lock',
         'TASK_RETRIES', 'RETRY_DELAY',
+
+        # Watchdog externo — sinal de vida
+        'escrever_heartbeat', 'PID_FILE', 'HEARTBEAT_FILE',
     }
 
     # Obter variáveis locais
@@ -465,6 +481,11 @@ logging.basicConfig(
     encoding='utf-8'
 )
 
+with open(PID_FILE, 'w') as f:
+    f.write(str(os.getpid()))
+
+logging.info(f"Menestrel iniciado — PID {os.getpid()}")
+
 print_header()
 
 # Rodadas diárias
@@ -478,5 +499,6 @@ schedule_time = 120
 schedule.every(schedule_time).minutes.do(extracoes_incrementais)
 
 while True:
+    escrever_heartbeat()
     schedule.run_pending()
     time.sleep(10)

@@ -8,6 +8,7 @@ import logging
 sap = SAPLogin()
 
 def engdds_indirect_procurement_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_INDIRECT_PROCUREMENT.PY ----")
 
     minio = MinioConnector()
     with open('files.json', 'rb') as file:

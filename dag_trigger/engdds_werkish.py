@@ -7,6 +7,7 @@ import logging
 sap = SAPLogin()
 
 def engdds_werkish_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_WERKISH.PY ----")
 
     minio = MinioConnector()
     with open('files.json','rb') as file:

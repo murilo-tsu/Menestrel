@@ -14,6 +14,7 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def engdds_bom_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_BOM.PY ----")
     
     # 2025-11-18: Instanciando o Minio para utilizar buffer e uploader a partir dos arquivos do json
     minio = MinioConnector()

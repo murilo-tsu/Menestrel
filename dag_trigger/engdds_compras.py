@@ -12,6 +12,7 @@ def f(num):
     return f"0{num}" if num < 10 else str(num)
 
 def engdds_compras_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_COMPRAS.PY ----")
     
     minio = MinioConnector()
     with open('files.json', 'rb') as file:

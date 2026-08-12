@@ -8,6 +8,7 @@ import logging
 sap = SAPLogin()
 
 def engdds_cockpit_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_COCKPIT.PY ----")
     
     # 2025-11-18: Instanciando o Minio para utilizar buffer e uploader a partir dos arquivos do json
     minio = MinioConnector()

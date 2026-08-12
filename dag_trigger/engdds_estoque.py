@@ -15,6 +15,7 @@ def f(num):
 sap = SAPLogin()
 
 def engdds_estoque_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_ESTOQUE.PY ----")
     
     minio = MinioConnector()
     with open('files.json','rb') as file:
