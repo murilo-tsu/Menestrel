@@ -85,9 +85,10 @@ class SAPLogin:
     def login_to_s4hana(self, lang = 'EN'):
         """Login SAP4HANA"""
         try:
-            self._initialize_sap_gui()
-            print('SAP :: sessão iniciada')
-            return self._perform_login("SAP S/4 HANA PROD", lang)
+            with self.login_watchdog(120):
+                self._initialize_sap_gui()
+                print('SAP :: sessão iniciada')
+                return self._perform_login("SAP S/4 HANA PROD", lang)
         except Exception as e:
             self.cleanup()
             raise Exception(f"Falha ao realizar o login no SAP4HANA: {str(e)}")
@@ -138,6 +139,36 @@ class SAPLogin:
         subprocess.run('taskkill /f /im excel.exe',
                         shell=True, stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL, timeout=2)
+
+
+    def kill_saplogon(self):
+        """
+        Encerra o saplogon.exe. Usado pelo login_watchdog quando o handshake de
+        login (OpenConnection/findById) trava, para forçar a chamada COM
+        bloqueada a retornar com erro em vez de travar o processo para sempre.
+        """
+        subprocess.run('taskkill /f /im saplogon.exe',
+                        shell=True, stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL, timeout=2)
+
+
+    @contextlib.contextmanager
+    def login_watchdog(self, timeout=120):
+        """
+        Mata o saplogon.exe caso o login no SAP4HANA (_initialize_sap_gui +
+        _perform_login) trave por mais de `timeout` segundos. Mesma lógica do
+        export_watchdog: o taskkill roda em outra thread e não toca em objetos
+        COM, então é seguro mesmo com a chamada SAP bloqueada na thread
+        principal — ele só derruba o processo saplogon por fora, o que faz a
+        chamada COM travada retornar com erro (permitindo o retry) em vez de
+        travar para sempre.
+        """
+        timer = threading.Timer(timeout, self.kill_saplogon)
+        timer.start()
+        try:
+            yield
+        finally:
+            timer.cancel()
 
 
     @contextlib.contextmanager
