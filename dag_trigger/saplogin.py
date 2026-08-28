@@ -3,6 +3,7 @@ import subprocess
 import requests
 import threading
 import contextlib
+import logging
 from datetime import datetime
 from menestrel_encryptor import sap_crypto, sp_crypto
 from requests.auth import HTTPBasicAuth
@@ -147,6 +148,7 @@ class SAPLogin:
         login (OpenConnection/findById) trava, para forçar a chamada COM
         bloqueada a retornar com erro em vez de travar o processo para sempre.
         """
+        logging.warning("login_watchdog :: timeout atingido, matando saplogon.exe (login travado)")
         subprocess.run('taskkill /f /im saplogon.exe',
                         shell=True, stdout=subprocess.DEVNULL,
                         stderr=subprocess.DEVNULL, timeout=2)
@@ -217,8 +219,8 @@ class SAPLogin:
         }
 
         payload = {
-            "conf": {},  
-            "dag_run_id": "manual__" + datetime.now().isoformat() 
+            "conf": {},
+            "dag_run_id": "manual__" + datetime.now().strftime("%Y-%m-%dT%H-%M-%S_%f")
         }
         
         try:

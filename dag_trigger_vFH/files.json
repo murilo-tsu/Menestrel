@@ -1,0 +1,138 @@
+{
+        "engdds_sku.py":
+
+            {
+                "path":"C:/Temp/t1/tabelas",
+                "files":["MARA.XLSX","MAKT.XLSX","ZVMM_MAT_CLASS.XLSX"]
+            },
+        
+        "engdds_compras.py":
+
+            {
+                "path":["C:/Temp/t1/compras",
+                        "C:/Temp/t1/sqvi"],
+                "files":["ME2W.XLSX","ME5A.XLSX","EBAN.XLSX","EKKO.XLSX","EKPO.XLSX",
+                         "ZMM_PURDOCS_REPORT.XLSX","ZMM_PURDOCS_HEADERTEXT.XLSX",
+                         "ZMM_PURDOCS_AUXINFO.XLSX"]
+            },
+        
+        "engdds_bom.py":
+            
+            {
+                "path":"C:/Temp/t1/zpp_bomrep",
+                "files":["ZPP_BOMREP_E900.XLSX"]
+            },
+        
+        "engdds_cockpit.py":
+
+            {
+                "path":"C:/Temp/t1/zpp_cockpit",
+                "files":["ZPP_COCKPIT.XLSX"]
+            },
+        
+        "engdds_custos.py":
+
+            {
+                "path":"C:/Temp/t1/zsd_rplcmnt_cost",
+                "files":"ZSD_RPLCMNT",
+                "cost_comp": {
+        
+                                "$":"_AGG_COST.xlsx", 
+                                "0":"_FOB_PRICE.xlsx", 
+                                "1":"_FREIGHT.xlsx",
+                                "2":"_PORT_CHARGE.xlsx", 
+                                "3":"_DEMURRAGE.xlsx", 
+                                "4":"_COST_ADJ.xlsx",
+                                "5":"_ICMS.xlsx", 
+                                "6":"_PERC_LOSSES.xlsx", 
+                                "7":"_WAREHOUSE_COST.xlsx",
+                                "8":"_PRODUCTION_COST.xlsx", 
+                                "9":"_PACKAGING_COST.xlsx", 
+                                "A":"_FREIGHT_TO_CMISS.xlsx",
+                                "B":"_PREMIUM_ADJ.xlsx", 
+                                "C":"_IMPORT_TAX.xlsx", 
+                                "D":"_TOLLING_COST.xlsx",
+                                "E":"_UNIT_VARIABLE_COST.xlsx", 
+                                "#":"_INTERNAL_TOLLING.xlsx"
+                            }
+            },
+        
+        "engdds_estoque.py":
+
+            {
+                "path":["C:/Temp/t1/zmm_qnty_pivb",
+                        "C:/Temp/t1/sqvi",
+                        "C:/Temp/t1/mb51",
+                        "C:/Temp/t1/fbl1h",
+                        "C:/Temp/t1/cooispi",
+                        "C:/Temp/t1/cogi",
+                        "C:/Temp/t1/zfi_nf_pivb",
+                        "C:/Temp/t1/vl06i",
+                        "C:/Temp/t1/mb52",
+                        "C:/Temp/t1/zfi_gl_pivb"],
+                "files":["ZMM_QNTY_PIVB_",
+                        "ZMB5T.XLSX",
+                        "MCHB.XLSX",
+                        "MB51_Quebra.XLSX",
+                        "FBL1H_E900.XLSX",
+                        "COOISPI_SEG.XLSX",
+                        "COOISPI_VARREDURA.XLSX",
+                        "COOISPI_VARREDURA_MP.XLSX",
+                        "COGI.txt",
+                        "ZFI_NF_PIVB.xlsx",
+                        "VL06I_ALL.XLSX",
+                        "MB52.xlsx",
+                        "ZFI_GL_PIVB.xlsx"],
+                "sufixo_files":"_ALL.XLSX",
+                "werks":["E90*", "P90*"]
+            },
+
+        "engdds_faturamento.py":
+
+            {
+                "path":"C:/Temp/t1/zsd_pivb",
+                "files":["ZSD_PIVB_E900.XLSX"] 
+            },
+        
+        "engdds_faturamento_hourly.py":
+        
+            {
+                "path":"C:/Temp/t1/zsd_pivb_incremental",
+                "files":["ZSD_PIVB_E900_HOURLY.XLSX"]  
+            },
+        
+        "engdds_text_info.py":
+            {
+                "path":["C:/Temp/t1/compras",
+                        "C:/Temp/t1/txt/po",
+                        "C:/Temp/t1/txt"],
+                "files":["ZMM_PURDOCS_REPORT.XLSX","purchase_order_header_text.csv"]
+            },
+        
+        "engdds_werkish.py":
+            {
+                "path":"C:/Temp/t1/sqvi",
+                "files":["WERKS.XLSX", "LGORT.XLSX", "TVSTT.XLSX"]
+            },
+        "engdds_fbl3h.py":
+            {
+                "path":"C:/Temp/t1/fbl3h",
+                "files":["FBL3H.XLSX"]
+            },
+        "engdds_fbl5h.py":
+            {
+                "path":"C:/Temp/t1/fbl5h",
+                "files":["FBL5H.XLSX"]
+            },
+        "engdds_nf_01.py":
+            {
+                "path":"C:/Temp/t1/nf_01",
+                "files":["NF_01_E900.XLSX",
+                        "NF_01_E900_DOLAR.XLSX"]
+            },
+        "engdds_mb51_consumo.py":
+            {
+                "path":"C:/Temp/t1/mb51_consumo",
+                "files":"MB51_Consumo.XLSX"
+            }
+}

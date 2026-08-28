@@ -7,9 +7,65 @@ import os
 import logging
 sap = SAPLogin()
 
+def remover_arquivo_local(caminho_arquivo):
+    """
+    Remove o arquivo local antes de uma nova exportação.
+
+    Isso evita que o SAP tente sobrescrever um XLSX antigo ou que o Python leia
+    um arquivo antigo que ficou na pasta de saída.
+    """
+    if not os.path.exists(caminho_arquivo):
+        return
+
+    logging.info(f"Arquivo local já existe e será removido: {caminho_arquivo}")
+
+    try:
+        os.remove(caminho_arquivo)
+    except PermissionError as erro:
+        raise PermissionError(
+            f"Não foi possível remover o arquivo local porque ele está em uso: "
+            f"{caminho_arquivo}. Verifique se ele está aberto no Excel ou preso "
+            f"por algum processo do SAP."
+        ) from erro
+
+
+def aguardar_arquivo_disponivel(caminho_arquivo, tentativas=20, intervalo=3):
+    """
+    Aguarda o arquivo existir e estar liberado para leitura.
+
+    Mesmo após o SAP informar que exportou, o arquivo XLSX pode continuar sendo
+    gravado ou ficar temporariamente bloqueado pelo Excel/SAP.
+    """
+    for tentativa in range(1, tentativas + 1):
+        if not os.path.exists(caminho_arquivo):
+            logging.info(
+                f"Arquivo ainda não encontrado. "
+                f"Tentativa {tentativa}/{tentativas}: {caminho_arquivo}"
+            )
+            time.sleep(intervalo)
+            continue
+
+        try:
+            with open(caminho_arquivo, "rb") as file:
+                file.read(1)
+            return
+
+        except PermissionError:
+            logging.info(
+                f"Arquivo ainda está bloqueado. "
+                f"Tentativa {tentativa}/{tentativas}. "
+                f"Aguardando {intervalo} segundos..."
+            )
+            time.sleep(intervalo)
+
+    raise TimeoutError(
+        f"O arquivo foi exportado, mas continuou bloqueado para leitura após "
+        f"{tentativas * intervalo} segundos: {caminho_arquivo}"
+    )
+
 def engdds_faturamento_hourly_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_FATURAMENTO_HOURLY.PY ----")
-    
+
     minio = MinioConnector()
     with open('files.json', 'rb') as file:
         meta_arquivos = json.load(file)
@@ -55,42 +111,23 @@ def engdds_faturamento_hourly_main():
         with sap.export_watchdog(180):
             session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-            # ----------------------------------------------------------------------------------------------------------------------
-            # Opção 1: usado para extrair um arquivo do tipo .txt
-            # session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-            # session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-            # session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-            # session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-            # session.findById("wnd[1]/tbar[0]/btn[11]").press()
-            # ---------------------------------------------------------------------------------------------------------------------
-
             # Opção 2: usado para extrair um arquivo do tipo .xlsx
             session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_faturamento_hourly.py']['path']
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600_HOURLY.XLSX"
             nome_arquivo = meta_arquivos['engdds_faturamento_hourly.py']['files'][0]
+            caminho_arquivo_local = os.path.join(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
+            remover_arquivo_local(caminho_arquivo_local)
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
-        #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E600_HOURLY.XLSX")
+        aguardar_arquivo_disponivel(caminho_arquivo_local)
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     finally:
@@ -126,42 +163,23 @@ def engdds_faturamento_hourly_main():
         with sap.export_watchdog(180):
             session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-            # ------------------------------------------------------------------------------------------
-            # Opção 1: usado para extrair um arquivo do tipo .txt
-            #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-            #session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-            #session.findById("wnd[1]/tbar[0]/btn[11]").press()
-            # ------------------------------------------------------------------------------------------
-
             # Opção 2: usado para extrair um arquivo do tipo .xlsx
             session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_faturamento_hourly.py']['path']
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E890_HOURLY.XLSX"
             nome_arquivo = meta_arquivos['engdds_faturamento_hourly.py']['files'][1]
+            caminho_arquivo_local = os.path.join(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
+            remover_arquivo_local(caminho_arquivo_local)
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
-        #                 r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E890_HOURLY.XLSX")
+        aguardar_arquivo_disponivel(caminho_arquivo_local)
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     finally:
@@ -172,7 +190,7 @@ def engdds_faturamento_hourly_main():
     try:
 
         session = sap.login_to_s4hana()
-        # Extrair E890
+        # Extrair E900
         try:
             session.FindById("wnd[0]").SendVKey (0)
         except:
@@ -198,42 +216,23 @@ def engdds_faturamento_hourly_main():
         with sap.export_watchdog(180):
             session.findById("wnd[0]/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
 
-            # ------------------------------------------------------------------------------------------
-            # Opção 1: usado para extrair um arquivo do tipo .txt
-            #session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&PC")
-            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").select()
-            #session.findById("wnd[1]/usr/subSUBSCREEN_STEPLOOP:SAPLSPO5:0150/sub:SAPLSPO5:0150/radSPOPLI-SELFLAG[1,0]").setFocus()
-            #session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\02 - Data Analytics\E600 Eurochem Fertilizantes Tocantins\E600 ECFTO - Faturamento\SAP S4 HANA"
-            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E600.txt"
-            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 12
-            #session.findById("wnd[1]/tbar[0]/btn[11]").press()
-            # ------------------------------------------------------------------------------------------
-
             # Opção 2: usado para extrair um arquivo do tipo .xlsx
             session.findById("wnd[0]/shellcont/shell").selectContextMenuItem ("&XXL")
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Faturamento"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_faturamento_hourly.py']['path']
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "ZSD_PIVB_E900_HOURLY.XLSX"
             nome_arquivo = meta_arquivos['engdds_faturamento_hourly.py']['files'][2]
+            caminho_arquivo_local = os.path.join(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
+            remover_arquivo_local(caminho_arquivo_local)
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 18
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
         session.findById("wnd[0]").close()
 
         # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Faturamento",
-        #                  r"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Faturamento/ZSD_PIVB_E900_HOURLY.XLSX")
+        aguardar_arquivo_disponivel(caminho_arquivo_local)
         arquivo = minio.buffer_creator(meta_arquivos['engdds_faturamento_hourly.py']['path'], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # -------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
     except Exception as e:
