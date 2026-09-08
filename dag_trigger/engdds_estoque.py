@@ -1,5 +1,5 @@
 from saplogin import SAPLogin
-from datetime import date, timedelta
+from datetime import date
 from Minio import MinioConnector
 import pandas as pd
 import json
@@ -105,17 +105,17 @@ def engdds_estoque_main():
     path_mchb = meta_arquivos["engdds_estoque.py"]["path"][1]
     files = meta_arquivos["engdds_estoque.py"]["files"]
     sufixo_files = meta_arquivos["engdds_estoque.py"]["sufixo_files"]
-    werks = meta_arquivos["engdds_estoque.py"]["werks"]
+    bukrs = meta_arquivos["engdds_estoque.py"]["bukrs"]
 
     # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     # BLOCO 1 :: EXTRAÇÃO ZMM_QNTY_PIVB
     # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-    def extrair_zmm_qnty_pivb_data_werk(dt, werk):
+    def extrair_zmm_qnty_pivb_data_bukrs(dt, bukrs_code):
         """
-        Executa uma extração do ZMM_QNTY_PIVB para uma data e uma planta.
+        Executa uma extração do ZMM_QNTY_PIVB para uma data e uma empresa (BUKRS).
 
         Essa função é chamada pelo retry individual de cada combinação:
-            data + planta
+            data + empresa
         """
         session = sap.login_to_s4hana()
 
@@ -128,14 +128,13 @@ def engdds_estoque_main():
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_QNTY_PIVB"
         session.findById("wnd[0]").sendVKey(0)
 
-        session.findById("wnd[0]/usr/ctxtSO_WERKS-LOW").text = f"{werk}"
+        session.findById("wnd[0]/usr/ctxtSO_BUKRS-LOW").text = f"{bukrs_code}"
         session.findById("wnd[0]/usr/ctxtSO_BUDAT-LOW").text = (
-            f"{f(dt.day)}.{f(dt.month)}.{dt.year}"
+            f"01.{f(dt.month)}.{dt.year}"
         )
         session.findById("wnd[0]/usr/ctxtSO_BUDAT-HIGH").text = (
             f"{f(dt.day)}.{f(dt.month)}.{dt.year}"
         )
-        session.findById("wnd[0]/usr/chkP_SB").selected = True
 
         session.findById(
             "wnd[0]/usr/btn%_SO_MATNR_%_APP_%-VALU_PUSH"
@@ -189,7 +188,7 @@ def engdds_estoque_main():
 
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
 
-        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/DATAINSIGHT"
+        session.findById("wnd[0]/usr/ctxtP_DISVAR").text = "/IT_INV_EXT"
         session.findById("wnd[0]/usr/ctxtP_DISVAR").setFocus()
         session.findById("wnd[0]/usr/ctxtP_DISVAR").caretPosition = 4
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
@@ -204,8 +203,8 @@ def engdds_estoque_main():
 
         nome_arquivo = (
             f"{dt.year}-{f(dt.month)}-{f(dt.day)} "
-            f"{files[0]}"
-            f"{werk[:3]}"
+            f"{files[3]}"
+            f"{bukrs_code}"
             f"{sufixo_files}"
         )
 
@@ -235,18 +234,13 @@ def engdds_estoque_main():
         """
         Executa a janela de extração do ZMM_QNTY_PIVB.
 
-        O retry é aplicado por data + planta, e não no bloco inteiro.
-        Assim, se uma planta falhar, o script tenta novamente só aquela planta
+        O retry é aplicado por data + empresa (BUKRS), e não no bloco inteiro.
+        Assim, se uma empresa falhar, o script tenta novamente só aquela empresa
         e depois segue para as próximas combinações.
         """
-        hoje = date.today().weekday()
-        domingo = hoje == 6
-
-        # Definir datas dinâmicas para extração de dados.
-        if domingo:
-            primeira_data = date.today() + timedelta(days=-45)
-        else:
-            primeira_data = date.today() + timedelta(days=-3)
+        # Artifício <--> usar dt_comp para tirar fotos de estoque em outras datas
+        # SE necessário; por enquanto inativo, extrai só a data de hoje.
+        primeira_data = date.today()
 
         dates_range = pd.date_range(primeira_data, pd.Timestamp.now(), freq="D")
         dt_comp = [date.strftime("%Y-%m-%d") for date in dates_range]
@@ -258,13 +252,13 @@ def engdds_estoque_main():
                 int(day.split("-")[2]),
             )
 
-            for werk in werks:
-                etapa = f"ZMM_QNTY_PIVB {dt.year}-{f(dt.month)}-{f(dt.day)} {werk}"
+            for bukrs_code in bukrs:
+                etapa = f"ZMM_QNTY_PIVB {dt.year}-{f(dt.month)}-{f(dt.day)} {bukrs_code}"
 
                 executar_com_retry(
                     erros=erros,
                     etapa=etapa,
-                    funcao=lambda dt=dt, werk=werk: extrair_zmm_qnty_pivb_data_werk(dt, werk),
+                    funcao=lambda dt=dt, bukrs_code=bukrs_code: extrair_zmm_qnty_pivb_data_bukrs(dt, bukrs_code),
                     tentativas=3,
                     intervalo=60,
                 )

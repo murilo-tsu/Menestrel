@@ -52,9 +52,9 @@
             {
                 "path":["C:/Temp/t1/zmm_qnty_pivb",
                         "C:/Temp/t1/sqvi"],
-                "files":["ZMM_QNTY_PIVB_","ZMB5T.XLSX","MCHB.XLSX"],
+                "files":["ZMM_QNTY_PIVB_","ZMB5T.XLSX","MCHB.XLSX","ZMM_QNTY_PIVB_STOCK_"],
                 "sufixo_files":"_ALL.XLSX",
-                "werks":["E60*", "E89*", "E90*", "P60*", "P90*"]
+                "bukrs":["E600", "E900", "E890"]
             },
 
         "engdds_faturamento.py":
@@ -94,7 +94,7 @@
         "engdds_gl_accounts.py":
             {
                 "path":"C:/Temp/t1/gl_accounts",
-                "files":["2025_ZFI_GL_PIVB.XLSX","2026_ZFI_GL_PIVB.XLSX"]
+                "files":["2025_ZFI_GL_PIVB.XLSX","2026_ZFI_GL_PIVB.XLSX","2025_POAC.XLSX","2026_POAC.XLSX"]
             },
 
         "position_files.py":

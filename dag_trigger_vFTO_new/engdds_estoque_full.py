@@ -34,7 +34,7 @@ def engdds_estoque_full_main():
 
         dates_range = pd.date_range(primeira_data, pd.Timestamp.now(), freq='D')
         dt_comp = [date.strftime('%Y-%m-%d') for date in dates_range]
-
+        
         # werks = ['E60*', 'E89*', 'E90*', 'P60*', 'P90*']
         bukrs = meta_arquivos['engdds_estoque.py']['bukrs']
 
@@ -44,9 +44,9 @@ def engdds_estoque_full_main():
             print(day)
             dt = date(int(day.split("-")[0]),int(day.split("-")[1]),int(day.split("-")[2]))
 
-            # Iterando através das empresas declaradas em BUKRS
+            # Iterando através das plantas declaradas em WERKS
             try:
-
+            
                 for i in bukrs:
                     session = sap.login_to_s4hana()
                     session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_QNTY_PIVB"
@@ -235,7 +235,7 @@ def engdds_estoque_full_main():
     #         except:
     #             pass
     #         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-    #         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
+    #         # DEPRECADO -------------------------------------------------------------------------------------------------------------------------------------------------------- 
     #         # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
     #         session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_estoque.py']['path'][1]
     #         # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "MCHB.XLSX"
@@ -244,7 +244,7 @@ def engdds_estoque_full_main():
     #         # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
     #         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
     #         session.findById("wnd[1]/tbar[0]/btn[11]").press()
-
+        
     #     # Encerrar sessão do SAP
     #     sap.limpar_processos()
     #     arquivo = minio.buffer_creator(meta_arquivos['engdds_estoque.py']['path'][1], nome_arquivo)

@@ -249,6 +249,7 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,2]").text = "YNAC"
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,3]").text = "ZUB"
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,4]").text = "ZUVR"
+        session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,5]").text = "ZMK"
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         sap.kill_excel()

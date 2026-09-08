@@ -208,9 +208,9 @@ class SAPLogin:
         Cria um módulo capaz de gatilhar uma [D][A][G] através de seu nome no servidor
         """
         # Dados do Servidor
-        airflow_url = f"http://10.91.5.107:8080/api/v1/dags/{dag_name}/dagRuns" 
-        username = "MRibeiro"
-        password = "@Himura2026airflow"
+        airflow_url = f"http://10.91.5.108:8080/api/v1/dags/{dag_name}/dagRuns" 
+        username = "datainsights_fh"
+        password = "Heringer123"
         
 
         headers = {
