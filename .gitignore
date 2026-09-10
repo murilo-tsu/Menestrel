@@ -6,3 +6,15 @@ dag_trigger/menestrel_song.log
 dag_trigger/watchdog_song.log
 dag_trigger/menestrel.pid
 dag_trigger/menestrel_heartbeat.txt
+
+# Pastas de comparação/auditoria do merge vFTO x vFH — só locais, nunca versionadas
+dag_trigger_vFH/
+dag_trigger_vFTO/
+dag_trigger_vFTO_new/
+_legacy/
+
+# Credenciais — nunca versionar, ficam só na máquina de produção
+*.enc
+key.key
+sp_key.key
+SENHA.txt
