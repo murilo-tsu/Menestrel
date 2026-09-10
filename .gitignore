@@ -2,8 +2,7 @@ __pycache__/
 *.pyc
 
 # Artefatos de execução — nunca devem ser commitados (ver "Bug Fix - Commit Mismatch")
-dag_trigger/menestrel_song.log
-dag_trigger/watchdog_song.log
+*.log
 dag_trigger/menestrel.pid
 dag_trigger/menestrel_heartbeat.txt
 
