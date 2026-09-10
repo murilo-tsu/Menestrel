@@ -346,10 +346,6 @@ def engdds_estoque_main():
         session.findById("wnd[0]/usr/txtGD-MAX_LINES").caretPosition = 0
 
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 1
-        session.findById(
-            "wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/ctxtGS_SELFIELDS-LOW[2,1]"
-        ).text = "E90*"
-
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 2
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 3
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 4
@@ -402,7 +398,44 @@ def engdds_estoque_main():
         ).caretPosition = 1
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
 
-        session.findById("wnd[0]/tbar[1]/btn[8]").press()
+        # Sem filtro de planta (WERKS) :: padrão original FTO, traz todas as plantas
+        try:
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnOPTION[1,8]").setFocus()
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnOPTION[1,8]").press()
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").currentCellRow = 5
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").selectedRows = "5"
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").doubleClickCurrentCell()
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").columns.elementAt(1).width = 2
+            session.findById(
+                "wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/ctxtGS_SELFIELDS-LOW[2,8]"
+            ).text = "0"
+            session.findById(
+                "wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/ctxtGS_SELFIELDS-LOW[2,8]"
+            ).setFocus()
+            session.findById(
+                "wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/ctxtGS_SELFIELDS-LOW[2,8]"
+            ).caretPosition = 1
+            session.findById("wnd[0]").sendVKey(0)
+            session.findById("wnd[0]/tbar[1]/btn[8]").press()
+            session.findById("wnd[0]/tbar[1]/btn[8]").press()
+        except:
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 12
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 15
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnOPTION[1,2]").setFocus()
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnOPTION[1,2]").press()
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").currentCellRow = 5
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").selectedRows = "5"
+            session.findById("wnd[1]/usr/cntlGRID/shellcont/shell").doubleClickCurrentCell()
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnPUSH[4,2]").setFocus()
+            session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnPUSH[4,2]").press()
+            session.findById(
+                "wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,0]"
+            ).text = "0"
+            session.findById(
+                "wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,0]"
+            ).caretPosition = 1
+            session.findById("wnd[1]/tbar[0]/btn[8]").press()
+            session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
         nome_arquivo = files[2]
 
