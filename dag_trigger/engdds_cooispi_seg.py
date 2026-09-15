@@ -19,7 +19,7 @@ def engdds_cooispi_seg_main():
     with open(files_json_path, 'r', encoding='utf-8') as file:
         meta_arquivos = json.load(file)
 
-    session = sap.login_to_s4hana()
+    session = sap.login_to_s4hana(lang = 'PT')
 
     try:
         try:

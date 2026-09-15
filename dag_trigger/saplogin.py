@@ -220,7 +220,7 @@ class SAPLogin:
 
         payload = {
             "conf": {},
-            "dag_run_id": "manual__" + datetime.now().strftime("%Y-%m-%dT%H-%M-%S_%f")
+            "dag_run_id": "MENESTREL__" + datetime.now().strftime("%Y-%m-%dT%H-%M-%S_%f")
         }
         
         try:

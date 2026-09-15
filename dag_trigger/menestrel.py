@@ -615,12 +615,12 @@ def extracao_diaria():
         logging.info("═" * 75)
         logging.info("Início do Processamento :: EXTRACAO DIARIA")
 
-        run_with_retry(pre_task,  task_name="POSITION_FILES")
+        #run_with_retry(pre_task,  task_name="POSITION_FILES")
         run_with_retry(task01,    task_name="SKU")
         run_with_retry(task02,    task_name="WERKISH")
         run_with_retry(task03,    task_name="CUSTOS")
         run_with_retry(task04,    task_name="FATURAMENTO")
-        run_with_retry(task05,    task_name="BOM")
+        #run_with_retry(task05,    task_name="BOM")
         run_with_retry(task06,    task_name="COMPRAS")
         run_with_retry(task08,    task_name="COCKPIT")
         # run_with_retry(task09, task_name="TEXT_INFO")
@@ -677,7 +677,7 @@ def executar_incrementais():
         resultados["FATURAMENTO"] = run_with_retry(hourly_task01, task_name="HOURLY_FATURAMENTO")
         resultados["COMPRAS"] = run_with_retry(hourly_task02, task_name="HOURLY_COMPRAS")
         resultados["GL_ACCOUNTS"] = run_with_retry(hourly_task03, task_name="HOURLY_GL_ACCOUNTS")
-        resultados["INDIRECT_PROCUREMENT"] = run_with_retry(hourly_task04, task_name="HOURLY_INDIRECT_PROCUREMENT")
+        #resultados["INDIRECT_PROCUREMENT"] = run_with_retry(hourly_task04, task_name="HOURLY_INDIRECT_PROCUREMENT")
         resultados["ZMB5T"] = run_with_retry(hourly_task05, task_name="HOURLY_ZMB5T")
         resultados["MB52"] = run_with_retry(hourly_task06, task_name="HOURLY_MB52")
 
@@ -807,12 +807,35 @@ schedule.every().day.at("00:01").do(clear_terminal_print_logo)
 schedule.every().day.at("00:05").do(extracao_diaria)
 schedule.every().day.at("05:00").do(run_with_retry, task09, task_name="TEXT_INFO")
 schedule.every().day.at("19:05").do(run_with_retry, task13, task_name="ESTOQUE_FULL")
+schedule.every().day.at("21:00").do(run_with_retry, task05, task_name="BOM")
 
 # Extrações incrementais — reagendamento dinâmico (evita o gap de poll fixo)
 schedule.every().day.at("00:15").do(armar_incrementais)
 armar_incrementais()
 
-while True:
-    escrever_heartbeat()
-    schedule.run_pending()
-    time.sleep(10)
+try: 
+        
+    while True:
+        escrever_heartbeat()
+        schedule.run_pending()
+        time.sleep(10)
+
+except KeyboardInterrupt:
+    
+    logging.info("Menestrel interrompiado manualmente...")
+    print("\n Menestrel interrompido manualmente! Fugindo da batalha...")
+    print(
+        """
+⡏⠉⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⣿
+⣿⠀⠀⠀⠈⠛⢿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠛⠉⠁⠀⣿
+⣿⣧⡀⠀⠀⠀⠀⠙⠿⠿⠿⠻⠿⠿⠟⠿⠛⠉⠀⠀⠀⠀⠀⣸⣿
+⣿⣿⣷⣄⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿
+⣿⣿⣿⣿⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⣴⣿⣿⣿⣿
+⣿⣿⣿⡟⠀⠀⢰⣹⡆⠀⠀⠀⠀⠀⠀⣭⣷⠀⠀⠀⠸⣿⣿⣿⣿
+⣿⣿⣿⠃⠀⠀⠈⠉⠀⠀⠤⠄⠀⠀⠀⠉⠁⠀⠀⠀⠀⢿⣿⣿⣿
+⣿⣿⣿⢾⣿⣷⠀⠀⠀⠀⡠⠤⢄⠀⠀⠀⠠⣿⣿⣷⠀⢸⣿⣿⣿
+⣿⣿⣿⡀⠉⠀⠀⠀⠀⠀⢄⠀⢀⠀⠀⠀⠀⠉⠉⠁⠀⠀⣿⣿⣿
+⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⣿
+⣿⣿⣿⣿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣿
+        """
+    )
