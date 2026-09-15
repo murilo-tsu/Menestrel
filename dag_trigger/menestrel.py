@@ -84,7 +84,7 @@ def print_header():
     """ ASCII :: ARTE DE CABEÇALHO """
     print(HEADER)
     print(f"{Fore.LIGHTWHITE_EX}╔══════════════════════════════════════════════════════════════════════════════════╗")
-    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v5.1.1':^80} ║")
+    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v5.1.3':^80} ║")
     print(f"║ {f'Inicializado: {datetime.now()} @10.91.0.60':^80} ║")
     print(f"╠══════════════════════════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
     print(f"{Fore.LIGHTWHITE_EX}║                           {Fore.LIGHTGREEN_EX}Aguardando scripts agendados{Style.RESET_ALL}{Fore.LIGHTWHITE_EX}                           ║")
@@ -822,7 +822,7 @@ try:
 
 except KeyboardInterrupt:
     
-    logging.info("Menestrel interrompiado manualmente...")
+    logging.info("Menestrel interrompido manualmente...")
     print("\n Menestrel interrompido manualmente! Fugindo da batalha...")
     print(
         """
