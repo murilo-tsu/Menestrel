@@ -1,5 +1,6 @@
 from saplogin import SAPLogin
 from Minio import MinioConnector
+from heartbeat_utils import escrever_heartbeat
 import datetime
 import json
 import time
@@ -17,7 +18,7 @@ def engdds_indirect_procurement_main():
 
     # RELATÓRIO 1: ME5A ---------------------------------------------------------------------------------------------------------------------------------------------------------
     try:
-        
+        escrever_heartbeat()
         session = sap.login_to_s4hana(lang="PT")
 
         try:
@@ -70,7 +71,7 @@ def engdds_indirect_procurement_main():
     # ---------------------------------------------------------------------------------------------------------------------------------------------------------------
     # RELATÓRIO 2: ME2L ---------------------------------------------------------------------------------------------------------------------------------------------
     try:
-
+        escrever_heartbeat()
         session = sap.login_to_s4hana(lang="PT")
 
         try:
@@ -132,7 +133,7 @@ def engdds_indirect_procurement_main():
     # ---------------------------------------------------------------------------------------------------------------------------------------------------
     # RELATÓRIO 3: ME3L ---------------------------------------------------------------------------------------------------------------------------------
     try:
-
+        escrever_heartbeat()
         session = sap.login_to_s4hana(lang="PT")
 
         try:

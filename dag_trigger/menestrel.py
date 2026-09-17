@@ -84,7 +84,7 @@ def print_header():
     """ ASCII :: ARTE DE CABEÇALHO """
     print(HEADER)
     print(f"{Fore.LIGHTWHITE_EX}╔══════════════════════════════════════════════════════════════════════════════════╗")
-    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v5.1.3':^80} ║")
+    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v5.1.4':^80} ║")
     print(f"║ {f'Inicializado: {datetime.now()} @10.91.0.60':^80} ║")
     print(f"╠══════════════════════════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
     print(f"{Fore.LIGHTWHITE_EX}║                           {Fore.LIGHTGREEN_EX}Aguardando scripts agendados{Style.RESET_ALL}{Fore.LIGHTWHITE_EX}                           ║")
@@ -106,6 +106,7 @@ def run_with_retry(func, max_retries=TASK_RETRIES, delay=RETRY_DELAY, task_name=
     """
     for attempt in range(1, max_retries + 1):
         try:
+            escrever_heartbeat()
             logging.info(f"{task_name} — tentativa {attempt}/{max_retries}")
             func()
             logging.info(f"{task_name} executado com sucesso (tentativa {attempt})")
@@ -757,8 +758,9 @@ def armar_incrementais():
 def extracoes_incrementais():
     """
     Arma o ciclo de incrementais do dia: roda uma vez imediatamente e agenda
-    novas rodadas de hora em hora até as 19:00. Disparada pelo kickoff dinâmico
-    (armar_incrementais), não por um poll de intervalo fixo.
+    novas rodadas sempre no minuto 00 de cada hora até as 19:00. Disparada
+    pelo kickoff dinâmico (armar_incrementais), não por um poll de intervalo
+    fixo.
     """
     now = datetime.now()
 
@@ -775,8 +777,8 @@ def extracoes_incrementais():
 
     executar_incrementais()
 
-    schedule.every(60).minutes.until(FIM).do(executar_incrementais).tag('incremental')
-    logging.info("Incrementais agendadas de hora em hora até as 19:00.")
+    schedule.every().hour.at(':00').until(FIM).do(executar_incrementais).tag('incremental')
+    logging.info("Incrementais agendadas para todo minuto 00 até as 19:00.")
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════════╗

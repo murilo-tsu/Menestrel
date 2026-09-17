@@ -24,7 +24,7 @@ def engdds_mb51_consumo_main():
     with open(files_json_path, 'r', encoding='utf-8') as file:
         meta_arquivos = json.load(file)
 
-    session = sap.login_to_s4hana(lang = 'PT')
+    session = sap.login_to_s4hana()
 
     try:
         try:
