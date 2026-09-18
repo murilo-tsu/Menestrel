@@ -26,6 +26,8 @@ import subprocess
 import requests
 from datetime import datetime
 
+from pause_utils import esta_pausado
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MENESTREL_SCRIPT = os.path.join(BASE_DIR, 'menestrel.py')
 PID_FILE = os.path.join(BASE_DIR, 'menestrel.pid')
@@ -99,6 +101,9 @@ def notificar_teams(mensagem):
 
 
 def main():
+    if esta_pausado():
+        return  # pausa manual ativa — mesmo padrão silencioso do caso saudável
+
     pid = ler_pid()
     vivo = pid is not None and processo_vivo(pid)
     idade = idade_heartbeat_minutos()

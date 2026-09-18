@@ -6,15 +6,15 @@ import os
 import logging
 from datetime import datetime, timedelta
 
-hoje = datetime.today().date()
-primeiro_dia = (hoje - timedelta(days=30)).strftime("%d.%m.%Y")
-ultimo_dia = hoje.strftime("%d.%m.%Y")
-
 # Instaciador de SAP Session
 sap = SAPLogin()
 
 def engdds_mb51_consumo_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_MB51_CONSUMO.PY ----")
+
+    hoje = datetime.today().date()
+    primeiro_dia = (hoje - timedelta(days=30)).strftime("%d.%m.%Y")
+    ultimo_dia = hoje.strftime("%d.%m.%Y")
 
     minio = MinioConnector()
 

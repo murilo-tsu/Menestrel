@@ -1,6 +1,9 @@
 import schedule
 import logging
 import threading
+from daily_state import (
+    carregar_estado, marcar_task_concluida, marcar_daily_concluida, diaria_pendente_hoje,
+)
 from datetime import datetime, time as t
 from colorama import init, Fore, Style
 import time
@@ -131,7 +134,7 @@ def limpar_variaveis():
         'task14', 'task15', 'task16', 'task17', 'task18', 'task19', 'task20',
         'task21', 'task22', 'task23', 'task24', 'task25', 'task26',
         'hourly_task01', 'hourly_task02', 'hourly_task03', 'hourly_task04',
-        'hourly_task05', 'hourly_task06', 'position_files',
+        'hourly_task05', 'hourly_task06', 'hourly_task07', 'hourly_task08', 'position_files',
 
         # Funções de RPA com objetivos específicos
         'engdds_estoque_main', 'engdds_compras_main', 'engdds_faturamento_main',
@@ -163,6 +166,10 @@ def limpar_variaveis():
         # Reagendamento dinâmico dos incrementais + log verboso por task
         't', 'MIN_INICIO', 'FIM', 'armar_incrementais', 'kickoff_incrementais',
         'executar_incrementais', 'rodar_com_saida_verbose',
+
+        # Resume da diária — estado de progresso persistido em disco
+        'carregar_estado', 'marcar_task_concluida', 'marcar_daily_concluida',
+        'diaria_pendente_hoje',
     }
 
     # Obter variáveis locais
@@ -573,6 +580,28 @@ def hourly_task06():
         limpar_variaveis()
 
 
+def hourly_task07():
+    try:
+        rodar_com_saida_verbose(engdds_mb51_quebra_main, "HOURLY_MB51_QUEBRA")
+        logging.info("ENGDDS_MB51_QUEBRA_MAIN executado")
+    except Exception as erro:
+        logging.error(f"ENGDDS_MB51_QUEBRA_MAIN não executado: {erro}")
+        raise
+    finally:
+        limpar_variaveis()
+
+
+def hourly_task08():
+    try:
+        rodar_com_saida_verbose(engdds_mb51_consumo_main, "HOURLY_MB51_CONSUMO")
+        logging.info("ENGDDS_MB51_CONSUMO_MAIN executado")
+    except Exception as erro:
+        logging.error(f"ENGDDS_MB51_CONSUMO_MAIN não executado: {erro}")
+        raise
+    finally:
+        limpar_variaveis()
+
+
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ TASK LIST :: Position Files                                                      ║
 # ║ ---------------------------                                                      ║
@@ -616,34 +645,44 @@ def extracao_diaria():
         logging.info("═" * 75)
         logging.info("Início do Processamento :: EXTRACAO DIARIA")
 
-        #run_with_retry(pre_task,  task_name="POSITION_FILES")
-        run_with_retry(task01,    task_name="SKU")
-        run_with_retry(task02,    task_name="WERKISH")
-        run_with_retry(task03,    task_name="CUSTOS")
-        run_with_retry(task04,    task_name="FATURAMENTO")
-        #run_with_retry(task05,    task_name="BOM")
-        run_with_retry(task06,    task_name="COMPRAS")
-        run_with_retry(task08,    task_name="COCKPIT")
-        # run_with_retry(task09, task_name="TEXT_INFO")
-        run_with_retry(task10,    task_name="VBAK")
-        run_with_retry(task11,    task_name="GL_ACCOUNTS")
-        run_with_retry(task12,    task_name="INDIRECT_PROCUREMENT")
-        run_with_retry(task07,    task_name="ESTOQUE")
-        run_with_retry(task14,    task_name="MB51_QUEBRA")
-        run_with_retry(task15,    task_name="FBL1H")
-        run_with_retry(task16,    task_name="COOISPI_SEG")
-        run_with_retry(task17,    task_name="COOISPI_VARREDURA")
-        run_with_retry(task18,    task_name="COOISPI_VARREDURA_MP")
-        run_with_retry(task19,    task_name="ZFI_NF_PIVB")
-        run_with_retry(task20,    task_name="VL06I")
-        run_with_retry(task21,    task_name="COGI")
-        run_with_retry(task22,    task_name="ZFI_GL_PIVB")
-        run_with_retry(task23,    task_name="MB51_CONSUMO")
-        run_with_retry(task24,    task_name="FBL3H")
-        run_with_retry(task25,    task_name="FBL5H")
-        run_with_retry(task26,    task_name="NF_01")
+        concluidas = set(carregar_estado()['completed_tasks'])
+
+        def rodar(func, task_name):
+            if task_name in concluidas:
+                logging.info(f"{task_name} — já concluída hoje, pulando (resume)")
+                return
+            if run_with_retry(func, task_name=task_name):
+                marcar_task_concluida(task_name)
+
+        #rodar(pre_task,  "POSITION_FILES")
+        rodar(task01,    "SKU")
+        rodar(task02,    "WERKISH")
+        rodar(task03,    "CUSTOS")
+        rodar(task04,    "FATURAMENTO")
+        #rodar(task05,    "BOM")
+        rodar(task06,    "COMPRAS")
+        rodar(task08,    "COCKPIT")
+        # rodar(task09, "TEXT_INFO")
+        rodar(task10,    "VBAK")
+        rodar(task11,    "GL_ACCOUNTS")
+        rodar(task12,    "INDIRECT_PROCUREMENT")
+        rodar(task07,    "ESTOQUE")
+        rodar(task14,    "MB51_QUEBRA")
+        rodar(task15,    "FBL1H")
+        rodar(task16,    "COOISPI_SEG")
+        rodar(task17,    "COOISPI_VARREDURA")
+        rodar(task18,    "COOISPI_VARREDURA_MP")
+        rodar(task19,    "ZFI_NF_PIVB")
+        rodar(task20,    "VL06I")
+        rodar(task21,    "COGI")
+        rodar(task22,    "ZFI_GL_PIVB")
+        rodar(task23,    "MB51_CONSUMO")
+        rodar(task24,    "FBL3H")
+        rodar(task25,    "FBL5H")
+        rodar(task26,    "NF_01")
 
         trigger.trigger_airflow_dag(dag_name='daily_chained_dags')
+        marcar_daily_concluida()
         logging.info("Final do Processamento :: EXTRACAO DIARIA")
         logging.info("═" * 75)
 
@@ -681,6 +720,8 @@ def executar_incrementais():
         #resultados["INDIRECT_PROCUREMENT"] = run_with_retry(hourly_task04, task_name="HOURLY_INDIRECT_PROCUREMENT")
         resultados["ZMB5T"] = run_with_retry(hourly_task05, task_name="HOURLY_ZMB5T")
         resultados["MB52"] = run_with_retry(hourly_task06, task_name="HOURLY_MB52")
+        resultados["MB51_QUEBRA"] = run_with_retry(hourly_task07, task_name="HOURLY_MB51_QUEBRA")
+        resultados["MB51_CONSUMO"] = run_with_retry(hourly_task08, task_name="HOURLY_MB51_CONSUMO")
 
         sucessos = [nome for nome, ok in resultados.items() if ok]
         falhas = [nome for nome, ok in resultados.items() if not ok]
@@ -815,7 +856,13 @@ schedule.every().day.at("21:00").do(run_with_retry, task05, task_name="BOM")
 schedule.every().day.at("00:15").do(armar_incrementais)
 armar_incrementais()
 
-try: 
+# Resume da diária :: cobre processo que caiu/reiniciou (watchdog, reboot,
+# start manual tardio) antes de concluir a EXTRACAO DIARIA de hoje.
+if diaria_pendente_hoje():
+    logging.info("EXTRACAO DIARIA de hoje incompleta ou nunca iniciada — retomando no boot.")
+    extracao_diaria()
+
+try:
         
     while True:
         escrever_heartbeat()

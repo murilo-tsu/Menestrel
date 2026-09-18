@@ -5,6 +5,7 @@ __pycache__/
 *.log
 dag_trigger/menestrel.pid
 dag_trigger/menestrel_heartbeat.txt
+dag_trigger/menestrel.pause
 
 # Pastas de comparação/auditoria do merge vFTO x vFH — só locais, nunca versionadas
 dag_trigger_vFH/
