@@ -7,16 +7,80 @@ import os
 import logging
 sap = SAPLogin()
 
+
+def registrar_erro(erros, etapa, erro):
+    """
+    Registra erro definitivo de uma etapa.
+
+    Essa função só deve ser chamada depois que todas as tentativas da etapa
+    falharem.
+    """
+    mensagem = f"{etapa} :: {str(erro)}"
+
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
+    erros.append(mensagem)
+
+    try:
+        sap.limpar_processos()
+        sap.cleanup()
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+
+
+def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
+    """
+    Executa uma etapa com tentativas.
+
+    Regra:
+        - Se a etapa funcionar em qualquer tentativa, segue o fluxo normalmente.
+        - Se falhar, encerra o SAP, aguarda e tenta novamente.
+        - Se todas as tentativas falharem, registra o erro na lista 'erros'.
+        - O script não para imediatamente, permitindo executar os próximos blocos.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            logging.info(f"{etapa} :: tentativa {tentativa}/{tentativas}")
+
+            funcao()
+
+            logging.info(f"{etapa} :: concluído com sucesso")
+            return True
+
+        except Exception as erro:
+            ultimo_erro = erro
+
+            logging.error(
+                f"Erro na etapa {etapa} durante tentativa "
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
+            )
+
+            try:
+                sap.limpar_processos()
+                sap.cleanup()
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+
+            if tentativa < tentativas:
+                logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
+                time.sleep(intervalo)
+
+    registrar_erro(erros, etapa, ultimo_erro)
+    return False
+
+
 def engdds_cockpit_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_COCKPIT.PY ----")
-    
+
     # 2025-11-18: Instanciando o Minio para utilizar buffer e uploader a partir dos arquivos do json
     minio = MinioConnector()
+    erros = []
     with open('files.json','rb') as file:
         meta_arquivos = json.load(file)
-    
-    try:
 
+    def extrair_zpp_cockpit():
         session = sap.login_to_s4hana()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZPP_COCKPIT"
         session.findById("wnd[0]").sendVKey (0)
@@ -64,12 +128,17 @@ def engdds_cockpit_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    except Exception as erro:
-        logging.error(f'Erro ao exportar o ZPP_COCKPIT.XLSX :: {str(erro)}')
-        sap.limpar_processos()
-        sap.cleanup()
+    executar_com_retry(erros=erros, etapa="ZPP_COCKPIT", funcao=extrair_zpp_cockpit, tentativas=3, intervalo=60)
 
     minio.flush_pending_uploads()
+
+    if erros:
+        raise RuntimeError(
+            "Ocorreram erros em uma ou mais extrações de COCKPIT:\n"
+            + "\n".join(erros)
+        )
+
+    logging.info("---- ENGDDS_COCKPIT.PY finalizado com sucesso ----")
 
 if __name__ == "__main__":
     engdds_cockpit_main()

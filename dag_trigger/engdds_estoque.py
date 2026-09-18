@@ -21,14 +21,14 @@ def registrar_erro(erros, etapa, erro):
     """
     mensagem = f"{etapa} :: {str(erro)}"
 
-    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}")
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
     erros.append(mensagem)
 
     try:
         sap.limpar_processos()
         sap.cleanup()
-    except:
-        pass
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos apos erro definitivo em {etapa}: {erro_cleanup}")
 
 
 def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
@@ -57,14 +57,15 @@ def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
 
             logging.error(
                 f"Erro na etapa {etapa} durante tentativa "
-                f"{tentativa}/{tentativas}: {str(erro)}"
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
             )
 
             try:
                 sap.limpar_processos()
                 sap.cleanup()
-            except:
-                pass
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos apos tentativa de {etapa}: {erro_cleanup}")
 
             if tentativa < tentativas:
                 logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
@@ -121,8 +122,8 @@ def engdds_estoque_main():
 
         try:
             session.FindById("wnd[0]").SendVKey(0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_QNTY_PIVB"
@@ -195,8 +196,8 @@ def engdds_estoque_main():
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton("TECHNAM")
@@ -215,8 +216,8 @@ def engdds_estoque_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = path_estoque
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
@@ -278,8 +279,8 @@ def engdds_estoque_main():
 
         try:
             session.FindById("wnd[0]").SendVKey(0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMB5T"
@@ -308,8 +309,8 @@ def engdds_estoque_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = path_estoque
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
@@ -331,8 +332,8 @@ def engdds_estoque_main():
 
         try:
             session.FindById("wnd[0]").SendVKey(0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         now = time.localtime()
 
@@ -450,8 +451,8 @@ def engdds_estoque_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = path_mchb
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo

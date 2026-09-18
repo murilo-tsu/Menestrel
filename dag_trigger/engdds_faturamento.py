@@ -7,10 +7,75 @@ import os
 import logging
 sap = SAPLogin()
 
+
+def registrar_erro(erros, etapa, erro):
+    """
+    Registra erro definitivo de uma etapa.
+
+    Essa função só deve ser chamada depois que todas as tentativas da etapa
+    falharem.
+    """
+    mensagem = f"{etapa} :: {str(erro)}"
+
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
+    erros.append(mensagem)
+
+    try:
+        sap.limpar_processos()
+        sap.cleanup()
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+
+
+def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
+    """
+    Executa uma etapa com tentativas.
+
+    Regra:
+        - Se a etapa funcionar em qualquer tentativa, segue o fluxo normalmente.
+        - Se falhar, encerra o SAP, aguarda e tenta novamente.
+        - Se todas as tentativas falharem, registra o erro na lista 'erros'.
+        - O script não para imediatamente, permitindo executar os próximos blocos.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            logging.info(f"{etapa} :: tentativa {tentativa}/{tentativas}")
+
+            funcao()
+
+            logging.info(f"{etapa} :: concluído com sucesso")
+            return True
+
+        except Exception as erro:
+            ultimo_erro = erro
+
+            logging.error(
+                f"Erro na etapa {etapa} durante tentativa "
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
+            )
+
+            try:
+                sap.limpar_processos()
+                sap.cleanup()
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+
+            if tentativa < tentativas:
+                logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
+                time.sleep(intervalo)
+
+    registrar_erro(erros, etapa, ultimo_erro)
+    return False
+
+
 def engdds_faturamento_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_FATURAMENTO.PY ----")
 
     minio = MinioConnector()
+    erros = []
     with open('files.json', 'rb') as file:
         meta_arquivos = json.load(file)
 
@@ -25,14 +90,13 @@ def engdds_faturamento_main():
     end_month = now.tm_mon
     end_year = now.tm_year
 
-    try:
-
+    # Extrair E600
+    def extrair_zsd_pivb_e600():
         session = sap.login_to_s4hana()
-        # Extrair E600
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
@@ -45,8 +109,8 @@ def engdds_faturamento_main():
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
@@ -93,22 +157,14 @@ def engdds_faturamento_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E600 :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    time.sleep(5)
-    try:
-
+    # Extrair E890
+    def extrair_zsd_pivb_e890():
         session = sap.login_to_s4hana()
-        # Extrair E890
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
@@ -121,8 +177,8 @@ def engdds_faturamento_main():
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
@@ -168,21 +224,13 @@ def engdds_faturamento_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E890 :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    time.sleep(5)
-    try:
-
+    # Extrair E900
+    def extrair_zsd_pivb_e900():
         session = sap.login_to_s4hana()
-        # Extrair E900
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_PIVB"
         session.findById("wnd[0]").sendVKey (0)
@@ -195,8 +243,8 @@ def engdds_faturamento_main():
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
         session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
@@ -242,15 +290,23 @@ def engdds_faturamento_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZSD_PIVB_E900 :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
+    executar_com_retry(erros=erros, etapa="ZSD_PIVB_E600", funcao=extrair_zsd_pivb_e600, tentativas=3, intervalo=60)
+    time.sleep(5)
+    executar_com_retry(erros=erros, etapa="ZSD_PIVB_E890", funcao=extrair_zsd_pivb_e890, tentativas=3, intervalo=60)
+    time.sleep(5)
+    executar_com_retry(erros=erros, etapa="ZSD_PIVB_E900", funcao=extrair_zsd_pivb_e900, tentativas=3, intervalo=60)
 
     time.sleep(10)
     minio.flush_pending_uploads()
     # sap.trigger_airflow_dag(dag_name="engdds_faturamento")
+
+    if erros:
+        raise RuntimeError(
+            "Ocorreram erros em uma ou mais extrações de FATURAMENTO:\n"
+            + "\n".join(erros)
+        )
+
+    logging.info("---- ENGDDS_FATURAMENTO.PY finalizado com sucesso ----")
 
 if __name__ == "__main__":
     engdds_faturamento_main()

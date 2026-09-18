@@ -34,8 +34,8 @@ def detalhe_ordem_compra(session):
                     session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0016/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
                 except:
                     session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0019/subSUB1:SAPLMEVIEWS:1100/subSUB1:SAPLMEVIEWS:4000/btnDYN_4000-BUTTON").press()
-    except:
-        pass
+    except Exception as erro:
+        logging.debug(f"Pop-up opcional nao tratado: {erro}")
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # FUNÇÃO: NAVEGA ATÉ ONDE ESTÃO OS DETALHES DA ORDEM DE COMPRA
@@ -54,8 +54,8 @@ def navega_ordem_compra(session):
                     session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0016/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
                 except:
                     session.findById("wnd[0]/usr/subSUB0:SAPLMEGUI:0019/subSUB1:SAPLMEVIEWS:1100/subSUB2:SAPLMEVIEWS:1200/subSUB1:SAPLMEGUI:1102/tabsHEADER_DETAIL/tabpTABHDT3").select()
-    except:
-        pass
+    except Exception as erro:
+        logging.debug(f"Pop-up opcional nao tratado: {erro}")
 # -----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------- MAIN ---------------------------------------------------------------------------------
@@ -155,15 +155,15 @@ def engdds_text_info_main():
                 session.findById("wnd[2]/tbar[0]/btn[0]").press()
                 try:
                     session.findById("wnd[2]/tbar[0]/btn[5]").press()
-                except:
-                    pass
+                except Exception as erro:
+                    logging.debug(f"Pop-up opcional nao tratado: {erro}")
                 session.findById("wnd[0]/tbar[0]/btn[15]").press()
                 session.findById("wnd[0]/tbar[0]/btn[15]").press()
-            print(f"Textos do pedido {order} processados!")
+            logging.info(f"Textos do pedido {order} processados!")
             time.sleep(1)
 
         except Exception as erro:
-            print(f'Erro ao buscar cabeçalho do pedido {order}')
+            logging.error(f'Erro ao buscar cabeçalho do pedido {order}', exc_info=erro)
             sap.limpar_processos()
             sap.cleanup()
             time.sleep(5)
@@ -191,7 +191,7 @@ def engdds_text_info_main():
     minio.upload_or_queue(arquivo,'tmp',meta_arquivos['engdds_text_info.py']['files'][1])
     minio.flush_pending_uploads()
     t1 = time.time()
-    print(f'O script durou {round((t1-t0)/60,2)} minutos')
+    logging.info(f'O script durou {round((t1-t0)/60,2)} minutos')
 
 if __name__ == "__main__":
     engdds_text_info_main()

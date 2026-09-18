@@ -96,8 +96,8 @@ def engdds_fbl5h_main():
 
             try:
                 session.FindById("wnd[0]").SendVKey(0)
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[0]/tbar[0]/okcd").text = "FBL5H"
             session.findById("wnd[0]").sendVKey(0)
@@ -139,14 +139,14 @@ def engdds_fbl5h_main():
 
         except Exception as erro:
             erros.append(f"{data_formatada} -> {str(erro)}")
-            logging.error(f"Erro ao processar FBL5H para {data_formatada}: {str(erro)}")
+            logging.error(f"Erro ao processar FBL5H para {data_formatada}: {str(erro)}", exc_info=erro)
 
         finally:
             try:
                 sap.limpar_processos()
                 sap.cleanup()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             time.sleep(10)
 
@@ -157,7 +157,7 @@ def engdds_fbl5h_main():
             limpar_arquivos_antigos(minio, "tmp", datas)
             logging.info("Limpeza de arquivos antigos concluída.")
         except Exception as erro_limpeza:
-            logging.error(f"Erro ao limpar arquivos antigos: {str(erro_limpeza)}")
+            logging.error(f"Erro ao limpar arquivos antigos: {str(erro_limpeza)}", exc_info=erro_limpeza)
 
     if erros:
         raise RuntimeError(f"Ocorreram erros na extração FBL5H: {erros}")

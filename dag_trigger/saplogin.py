@@ -47,19 +47,20 @@ class SAPLogin:
         try:
             # Etapa 01: Verificar se existe uma tela de pop-up
             popup = self.session.findById("wnd[1]")
-            
+
             # Etapa 02: Checar as opções do pop-up para verificar se
             # se se trata de uma validação de logon
             try:
-                
+
                 self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1")
-                print("Múltiplos logins detectados — mantendo sessão atual e encerrando as antigas.")
-                
+                logging.info("Múltiplos logins detectados — mantendo sessão atual e encerrando as antigas.")
+
                 try:
                     self.session.findById("wnd[1]/usr/radMULTI_LOGON_OPT1").select()
-                except:
+                except Exception as erro:
                     # Caso wnd[1]/usr/ragMULTI_LOGON_OPTI1 não esteja selecionável,
                     # forçar a seleção do botão de logon. Caso contrário, encerrar.
+                    logging.debug(f"radMULTI_LOGON_OPT1 não selecionável, tentando fallback por índice: {erro}")
                     try:
                         radio_area = self.session.findById("wnd[1]/usr")
                         for i in range(radio_area.Children.Count):
@@ -68,18 +69,17 @@ class SAPLogin:
                                 if i == 1:
                                     child.select()
                                     break
-                    except:
-                        pass
-                
+                    except Exception as erro_fallback:
+                        logging.warning(f"Fallback de seleção do botão de logon falhou: {erro_fallback}")
+
                 # Prosseguir com o login
                 self.session.findById("wnd[1]/tbar[0]/btn[0]").press()
-                
-            except:
-                print("Pop-up inesperado durante o login (ignorado)")
-                pass
-                
-        except:
-            pass
+
+            except Exception as erro:
+                logging.warning(f"Pop-up inesperado durante o login (ignorado): {erro}")
+
+        except Exception as erro:
+            logging.debug(f"Nenhum pop-up de login encontrado (fluxo normal): {erro}")
 
         return self.session
     
@@ -88,11 +88,11 @@ class SAPLogin:
         try:
             with self.login_watchdog(120):
                 self._initialize_sap_gui()
-                print('SAP :: sessão iniciada')
+                logging.info('SAP :: sessão iniciada')
                 return self._perform_login("SAP S/4 HANA PROD", lang)
         except Exception as e:
             self.cleanup()
-            raise Exception(f"Falha ao realizar o login no SAP4HANA: {str(e)}")
+            raise Exception(f"Falha ao realizar o login no SAP4HANA: {str(e)}") from e
     
     # ---------------------------------------------------------------------------------------
     # DEPRECADO :: O SISTEMA SAP ECC FOI CONGELADO E USA-SE APENAS O SAP4HANA
@@ -129,7 +129,7 @@ class SAPLogin:
                             shell = True, stdout=subprocess.DEVNULL,
                             stderr=subprocess.DEVNULL, timeout = 2)
         
-        print('SAP :: processos encerrados')
+        logging.info('SAP :: processos encerrados')
 
 
     def kill_excel(self):
@@ -196,10 +196,10 @@ class SAPLogin:
             sp = sharepoint(self.sp_user, self.sp_pass)
             sp.connect()
             sp.upload(sharepoint_folder, local_file_path)
-            print(f'SUCESSO :: {local_file_path} → {sharepoint_folder}')
+            logging.info(f'SUCESSO :: {local_file_path} → {sharepoint_folder}')
             return True
         except Exception as erro:
-            print(f'FALHA - {erro}')
+            logging.error(f'FALHA - {erro}', exc_info=True)
             return False
 
 
@@ -232,11 +232,11 @@ class SAPLogin:
                 timeout=10 
             )
             response.raise_for_status()
-            print("[D][A][G] iniciada com sucesso:", response.json())
+            logging.info(f"[D][A][G] iniciada com sucesso: {response.json()}")
         except requests.exceptions.HTTPError as e:
-            print(f"HTTP Error: {e.response.text}")
+            logging.error(f"HTTP Error: {e.response.text}", exc_info=True)
         except Exception as e:
-            print("Falha em iniciar a [D][A][G]:", str(e))
+            logging.error(f"Falha em iniciar a [D][A][G]: {str(e)}", exc_info=True)
 
     def limpar_variaveis():
         """Limpa variáveis para evitar conflitos entre scripts"""

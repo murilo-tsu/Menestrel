@@ -116,7 +116,7 @@ def run_with_retry(func, max_retries=TASK_RETRIES, delay=RETRY_DELAY, task_name=
             logging.info(f"{task_name} executado com sucesso (tentativa {attempt})")
             return True
         except Exception as e:
-            logging.error(f"{task_name} falhou tentativa {attempt}/{max_retries}: {e}")
+            logging.error(f"{task_name} falhou tentativa {attempt}/{max_retries}: {e}", exc_info=e)
             if attempt < max_retries:
                 logging.info(f"{task_name} — aguardando {delay}s antes de re-tentar...")
                 time.sleep(delay)

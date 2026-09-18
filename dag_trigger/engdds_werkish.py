@@ -6,21 +6,86 @@ import os
 import logging
 sap = SAPLogin()
 
+
+def registrar_erro(erros, etapa, erro):
+    """
+    Registra erro definitivo de uma etapa.
+
+    Essa função só deve ser chamada depois que todas as tentativas da etapa
+    falharem.
+    """
+    mensagem = f"{etapa} :: {str(erro)}"
+
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
+    erros.append(mensagem)
+
+    try:
+        sap.limpar_processos()
+        sap.cleanup()
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+
+
+def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
+    """
+    Executa uma etapa com tentativas.
+
+    Regra:
+        - Se a etapa funcionar em qualquer tentativa, segue o fluxo normalmente.
+        - Se falhar, encerra o SAP, aguarda e tenta novamente.
+        - Se todas as tentativas falharem, registra o erro na lista 'erros'.
+        - O script não para imediatamente, permitindo executar os próximos blocos.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            logging.info(f"{etapa} :: tentativa {tentativa}/{tentativas}")
+
+            funcao()
+
+            logging.info(f"{etapa} :: concluído com sucesso")
+            return True
+
+        except Exception as erro:
+            ultimo_erro = erro
+
+            logging.error(
+                f"Erro na etapa {etapa} durante tentativa "
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
+            )
+
+            try:
+                sap.limpar_processos()
+                sap.cleanup()
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+
+            if tentativa < tentativas:
+                logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
+                time.sleep(intervalo)
+
+    registrar_erro(erros, etapa, ultimo_erro)
+    return False
+
+
 def engdds_werkish_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_WERKISH.PY ----")
 
     minio = MinioConnector()
+    erros = []
     with open('files.json','rb') as file:
         meta_arquivos = json.load(file)
 
     # WERKS :: CADASTRO DE PLANTAS
-    try:
+    def extrair_werks():
         session = sap.login_to_s4hana()
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
@@ -35,8 +100,8 @@ def engdds_werkish_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
             # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -60,19 +125,14 @@ def engdds_werkish_main():
         # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    finally:
-        # Always clean up
-        sap.limpar_processos()
-        sap.cleanup()
-
     # LGORT :: CADASTRO DE DEPÓSITOS
-    try:
+    def extrair_lgort():
         session = sap.login_to_s4hana()
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "ZVMM_LGORT_2"
@@ -87,8 +147,8 @@ def engdds_werkish_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
             # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -112,21 +172,14 @@ def engdds_werkish_main():
         # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório SE16N :: ZVMM_LGORT_2 :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
     # TVSTT :: Descrição de Shipping Points
-    try:
+    def extrair_tvstt():
         session = sap.login_to_s4hana()
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "TVSTT"
@@ -138,8 +191,8 @@ def engdds_werkish_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
             # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,15 +216,21 @@ def engdds_werkish_main():
         # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório SE16N :: TVSTT :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
+    executar_com_retry(erros=erros, etapa="WERKS", funcao=extrair_werks, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ZVMM_LGORT_2", funcao=extrair_lgort, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="TVSTT", funcao=extrair_tvstt, tentativas=3, intervalo=60)
 
     time.sleep(10)
     minio.flush_pending_uploads()
     # sap.trigger_airflow_dag(dag_name="engdds_units")
+
+    if erros:
+        raise RuntimeError(
+            "Ocorreram erros em uma ou mais extrações de WERKISH:\n"
+            + "\n".join(erros)
+        )
+
+    logging.info("---- ENGDDS_WERKISH.PY finalizado com sucesso ----")
 
 if __name__ == "__main__":
     engdds_werkish_main()

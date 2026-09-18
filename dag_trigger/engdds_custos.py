@@ -11,14 +11,79 @@ def f(num):
     """Função f() normaliza os números em formato texto"""
     return f"0{num}" if num < 10 else str(num)
 
+
+def registrar_erro(erros, etapa, erro):
+    """
+    Registra erro definitivo de uma etapa.
+
+    Essa função só deve ser chamada depois que todas as tentativas da etapa
+    falharem.
+    """
+    mensagem = f"{etapa} :: {str(erro)}"
+
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
+    erros.append(mensagem)
+
+    try:
+        sap.limpar_processos()
+        sap.cleanup()
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+
+
+def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
+    """
+    Executa uma etapa com tentativas.
+
+    Regra:
+        - Se a etapa funcionar em qualquer tentativa, segue o fluxo normalmente.
+        - Se falhar, encerra o SAP, aguarda e tenta novamente.
+        - Se todas as tentativas falharem, registra o erro na lista 'erros'.
+        - O script não para imediatamente, permitindo executar os próximos blocos.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            logging.info(f"{etapa} :: tentativa {tentativa}/{tentativas}")
+
+            funcao()
+
+            logging.info(f"{etapa} :: concluído com sucesso")
+            return True
+
+        except Exception as erro:
+            ultimo_erro = erro
+
+            logging.error(
+                f"Erro na etapa {etapa} durante tentativa "
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
+            )
+
+            try:
+                sap.limpar_processos()
+                sap.cleanup()
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+
+            if tentativa < tentativas:
+                logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
+                time.sleep(intervalo)
+
+    registrar_erro(erros, etapa, ultimo_erro)
+    return False
+
+
 def engdds_custos_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_CUSTOS.PY ----")
 
     # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
     minio = MinioConnector()
+    erros = []
     with open('files.json', 'rb') as file:
         meta_arquivos = json.load(file)
-    
+
     end_year_custos = f(datetime.date.today().year)
     end_month_custos = f(datetime.date.today().month)
     end_day_custos = f(datetime.date.today().day)
@@ -28,7 +93,7 @@ def engdds_custos_main():
 
     # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
     # cost_comp = {
-        
+
     #     "$":"_AGG_COST.xlsx", "0":"_FOB_PRICE.xlsx", "1":"_FREIGHT.xlsx",
     #     "2":"_PORT_CHARGE.xlsx", "3":"_DEMURRAGE.xlsx", "4":"_COST_ADJ.xlsx",
     #     "5":"_ICMS.xlsx", "6":"_PERC_LOSSES.xlsx", "7":"_WAREHOUSE_COST.xlsx",
@@ -37,15 +102,16 @@ def engdds_custos_main():
     #     "E":"_UNIT_VARIABLE_COST.xlsx", "#":"_INTERNAL_TOLLING.xlsx"}
 
     cost_comp = meta_arquivos['engdds_custos.py']['cost_comp']
-    
+
     for key, value in cost_comp.items():
         nome_arquivo = dt_name_custos + " " + meta_arquivos['engdds_custos.py']['files'] + value
-        try:
+
+        def extrair_custo(key=key, value=value, nome_arquivo=nome_arquivo):
             session = sap.login_to_s4hana()
             try:
                 session.FindById("wnd[0]").SendVKey (0)
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
             session.findById("wnd[0]").maximize()
             session.findById("wnd[0]/tbar[0]/okcd").text = "ZSD_RPLCMNT_COST"
             session.findById("wnd[0]").sendVKey (0)
@@ -59,7 +125,7 @@ def engdds_custos_main():
             #session.findById("wnd[1]/usr/ctxtDY_PATH").caretPosition = 0
             session.findById("wnd[1]").sendVKey (4)
             # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------            
+            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
             # session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Custos"
             session.findById("wnd[2]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_custos.py']['path']
             # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = dt_name_custos + " ZSD_RPLCMNT" + value
@@ -77,7 +143,7 @@ def engdds_custos_main():
             # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
             # caminho_arquivo = f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Custos/{nome_arquivo}"
             caminho_arquivo = meta_arquivos['engdds_custos.py']['path'] +"/"+nome_arquivo
-            print(f"ATUALIZADO: {caminho_arquivo}")
+            logging.info(f"ATUALIZADO: {caminho_arquivo}")
             # sap.upload_files(r"Shared Documents/Hadoop/SAP4HANA/Custos/",
             #                 caminho_arquivo)
             arquivo = minio.buffer_creator(meta_arquivos['engdds_custos.py']['path'], nome_arquivo)
@@ -85,12 +151,17 @@ def engdds_custos_main():
             # -----------------------------------------------------------------------------------------------------------------------------------------------------------------
             sap.cleanup()
 
-        except Exception as erro:
-            logging.error(f'Erro ao exportar dados do relatório ZSD_RPLCMNT_COST{value} :: {str(erro)}')
-            sap.limpar_processos()
-            sap.cleanup()
+        executar_com_retry(erros=erros, etapa=f"ZSD_RPLCMNT_COST{value}", funcao=extrair_custo, tentativas=3, intervalo=60)
 
     minio.flush_pending_uploads()
+
+    if erros:
+        raise RuntimeError(
+            "Ocorreram erros em uma ou mais extrações de CUSTOS:\n"
+            + "\n".join(erros)
+        )
+
+    logging.info("---- ENGDDS_CUSTOS.PY finalizado com sucesso ----")
 
 if __name__ == "__main__":
     engdds_custos_main()

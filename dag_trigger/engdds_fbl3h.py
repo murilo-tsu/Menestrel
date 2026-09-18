@@ -83,8 +83,8 @@ def engdds_fbl3h_main():
 
             try:
                 session.FindById("wnd[0]").SendVKey(0)
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[0]/tbar[0]/okcd").text = "FBL3H"
             session.findById("wnd[0]").sendVKey(0)
@@ -103,8 +103,8 @@ def engdds_fbl3h_main():
 
             try:
                 session.findById("wnd[1]/usr/btnBUTTON_1").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             sap.kill_excel()
             with sap.export_watchdog(180):
@@ -127,15 +127,15 @@ def engdds_fbl3h_main():
             logging.info(f"{data_formatada} :: FBL3H gravado no tmp como {nome_arquivo}")
 
         except Exception as erro:
-            logging.error(f"Erro ao processar FBL3H para {data_formatada}: {str(erro)}")
+            logging.error(f"Erro ao processar FBL3H para {data_formatada}: {str(erro)}", exc_info=erro)
             erros.append((data_formatada, str(erro)))
 
         finally:
             try:
                 sap.limpar_processos()
                 sap.cleanup()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             time.sleep(10)
 

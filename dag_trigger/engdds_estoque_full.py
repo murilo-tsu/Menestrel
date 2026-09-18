@@ -41,7 +41,7 @@ def engdds_estoque_full_main():
         # Data Inicial para começo da iteração :: começo do sistema
         # Considerar posting dates antigas
         for day in dt_comp:
-            print(day)
+            logging.debug(f"day: {day}")
             dt = date(int(day.split("-")[0]),int(day.split("-")[1]),int(day.split("-")[2]))
 
             # Iterando através das empresas declaradas em BUKRS
@@ -80,8 +80,8 @@ def engdds_estoque_full_main():
 
                     try:
                         session.findById("wnd[1]/usr/btnBUTTON_1").press()
-                    except:
-                        pass
+                    except Exception as erro:
+                        logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
                     session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("SHOWBUT")
                     session.findById("wnd[0]/shellcont/shell").pressToolbarButton ("TECHNAM")
@@ -92,8 +92,8 @@ def engdds_estoque_full_main():
 
                         try:
                             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-                        except:
-                            pass
+                        except Exception as erro:
+                            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
                         # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
                         # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------                    
@@ -114,16 +114,16 @@ def engdds_estoque_full_main():
                     minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
                     sap.cleanup()
 
-                print(f'{dt.year}-{f(dt.month)}-{f(dt.day)} :: DADOS GRAVADOS!')
+                logging.info(f'{dt.year}-{f(dt.month)}-{f(dt.day)} :: DADOS GRAVADOS!')
 
             except Exception as erro:
-                logging.error(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}")
+                logging.error(f"Erro ao processar dados na data {dt.year}-{f(dt.month)}-{f(dt.day)}", exc_info=erro)
                 logging.error(f"Mensagem de erro :: {str(erro)}")
                 sap.limpar_processos()
                 sap.cleanup()
 
     except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}')
+        logging.error(f'Erro ao exportar dados do relatório ZMM_QNTY_PIVB :: {str(e)}', exc_info=e)
         # Encerrar sessão do SAP
         sap.limpar_processos()
         sap.cleanup()

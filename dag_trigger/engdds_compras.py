@@ -11,28 +11,95 @@ def f(num):
     """Função f() normaliza os números em formato texto"""
     return f"0{num}" if num < 10 else str(num)
 
+
+def registrar_erro(erros, etapa, erro):
+    """
+    Registra erro definitivo de uma etapa.
+
+    Essa função só deve ser chamada depois que todas as tentativas da etapa
+    falharem.
+    """
+    mensagem = f"{etapa} :: {str(erro)}"
+
+    logging.error(f"Erro definitivo na etapa {etapa}: {str(erro)}", exc_info=erro)
+    erros.append(mensagem)
+
+    try:
+        sap.limpar_processos()
+        sap.cleanup()
+    except Exception as erro_cleanup:
+        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+
+
+def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
+    """
+    Executa uma etapa com tentativas.
+
+    Regra:
+        - Se a etapa funcionar em qualquer tentativa, segue o fluxo normalmente.
+        - Se falhar, encerra o SAP, aguarda e tenta novamente.
+        - Se todas as tentativas falharem, registra o erro na lista 'erros'.
+        - O script não para imediatamente, permitindo executar os próximos blocos.
+    """
+    ultimo_erro = None
+
+    for tentativa in range(1, tentativas + 1):
+        try:
+            logging.info(f"{etapa} :: tentativa {tentativa}/{tentativas}")
+
+            funcao()
+
+            logging.info(f"{etapa} :: concluído com sucesso")
+            return True
+
+        except Exception as erro:
+            ultimo_erro = erro
+
+            logging.error(
+                f"Erro na etapa {etapa} durante tentativa "
+                f"{tentativa}/{tentativas}: {str(erro)}",
+                exc_info=erro
+            )
+
+            try:
+                sap.limpar_processos()
+                sap.cleanup()
+            except Exception as erro_cleanup:
+                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+
+            if tentativa < tentativas:
+                logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
+                time.sleep(intervalo)
+
+    registrar_erro(erros, etapa, ultimo_erro)
+    return False
+
+
 def engdds_compras_main():
     logging.info("---- INICIANDO PROCESSO: ENGDDS_COMPRAS.PY ----")
-    
+
     minio = MinioConnector()
+    erros = []
+
     with open('files.json', 'rb') as file:
         meta_arquivos = json.load(file)
-    
+
     # Definindo datas dinâmicas
     end_year_compras = f(datetime.date.today().year)
     end_month_compras = f(datetime.date.today().month)
-    end_day_compras = f(datetime.date.today().day)    
-    
-    # ME2W :: Extração de Pedidos por Planta Fornecedora
-    try:
+    end_day_compras = f(datetime.date.today().day)
 
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: ME2W - Extração de Pedidos por Planta Fornecedora
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_me2w():
         session = sap.login_to_s4hana()
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
-        print("Iniciando extração: ME2W")
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
+        logging.info("Iniciando extração: ME2W")
         session.findById("wnd[0]/tbar[0]/okcd").text = "ME2W"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/btn%_EW_EKORG_%_APP_%-VALU_PUSH").press()
@@ -57,47 +124,33 @@ def engdds_compras_main():
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
         try:
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras" 
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
         nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][0]}"
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME2W.XLSX")
-        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0],nome_arquivo)
-        minio.upload_or_queue(arquivo,'tmp',nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ME2W :: {str(e)}')
         sap.limpar_processos()
-        sap.cleanup()
 
-    # Extração do Relatório de Requisições de Compra - ME5A
-    try:
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
+        minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
+        sap.cleanup()
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
+
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: ME5A - Relatório de Requisições de Compra
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_me5a():
         session = sap.login_to_s4hana()
 
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: ME5A")
+        logging.info("Iniciando extração: ME5A")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ME5A"
         session.findById("wnd[0]").sendVKey (0)
@@ -107,18 +160,13 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "E90*"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "P90*"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "E89*"
-        #session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").setFocus()
-        #session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").caretPosition = 4
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/usr/ctxtS_BSART-LOW").setFocus()
-        #session.findById("wnd[0]/usr/ctxtS_BSART-LOW").caretPosition = 2
         session.findById("wnd[0]/usr/btn%_S_BSART_%_APP_%-VALU_PUSH").press()
         session.findById("wnd[1]").sendVKey (2)
         session.findById("wnd[2]").close()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,0]").text = "YES2"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YES4"
-        #session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").setFocus
-        #session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").caretPosition = 4
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
         session.findById("wnd[0]/usr/chkP_ZUGBA").selected = True
         session.findById("wnd[0]/usr/chkP_MEMORY").selected = True
@@ -130,46 +178,32 @@ def engdds_compras_main():
 
         try:
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------         
-        # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
         session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
         nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][1]}"
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
         session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 9
         session.findById("wnd[1]/tbar[0]/btn[11]").press()
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ME5A.XLSX")
+
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ME5A :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    # Extração da tabela EBAN
-
-    try:
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: EBAN
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_eban():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
-        print("Iniciando extração: EBAN")
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
+        logging.info("Iniciando extração: EBAN")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
@@ -179,7 +213,7 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 1
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC").verticalScrollbar.position = 2
         session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnPUSH[4,1]").setFocus()
-        session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnPUSH[4,1]").press()        
+        session.findById("wnd[0]/usr/tblSAPLSE16NSELFIELDS_TC/btnPUSH[4,1]").press()
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,0]").text = "YES2"
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,1]").text = "YES4"
         session.findById("wnd[1]/usr/tblSAPLSE16NMULTI_TC/ctxtGS_MULTI_SELECT-LOW[1,2]").text = "NB"
@@ -194,47 +228,31 @@ def engdds_compras_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            #session.findById("wnd[2]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-            # session.findById("wnd[2]/usr/ctxtDY_FILENAME").text = "EBAN.XLSX"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][2]
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EBAN.XLSX")
-        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][2])
+
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][2])
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][2])
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][2]}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][2]}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados da tabela EBAN :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()        
-
-    # Extração da tabela EKKO
-
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: EKKO
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_ekko():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: EKKO")
+        logging.info("Iniciando extração: EKKO")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "EKKO"
@@ -259,46 +277,31 @@ def engdds_compras_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKKO.XLSX"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][3]
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKKO.XLSX")
+
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][3])
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][3])
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][3]}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][3]}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()   
-
-    # Extração da tabela EKPO
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: EKPO
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_ekpo():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: EKPO")
+        logging.info("Iniciando extração: EKPO")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "EKPO"
@@ -328,46 +331,31 @@ def engdds_compras_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][4]
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
-        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][4])
+
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][4])
         minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][4])
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][4]}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][4]}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados da tabela EKKO :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    # Extração do Relatório ZMM_PURDOCS_REPORT
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: ZMM_PURDOCS_REPORT
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_zmm_purdocs_report():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: ZMM_PURDOCS_REPORT")
+        logging.info("Iniciando extração: ZMM_PURDOCS_REPORT")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -401,53 +389,35 @@ def engdds_compras_main():
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         sap.kill_excel()
         with sap.export_watchdog(180):
             session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX"
             nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][5]}"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
 
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-        #              f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_REPORT.XLSX")
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_REPORT :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    # Extração do Relatório ZMM_PURDOCS_REPORT
-    # APENAS HEADER TEXTS
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: ZMM_PURDOCS_REPORT (HEADER TEXT)
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_zmm_purdocs_headertext():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: ZMM_PURDOCS_REPORT (HEADER TEXT)")
+        logging.info("Iniciando extração: ZMM_PURDOCS_REPORT (HEADER TEXT)")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -462,8 +432,8 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,0]").text = "YIMP"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YNAC"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "NB"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK" 
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"       
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK"
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").setFocus()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").caretPosition = 2
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
@@ -479,55 +449,39 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_LONGT").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT2").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT3").selected = True
-        # session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "HDTXT"
         session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "/HDTXT"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         sap.kill_excel()
         with sap.export_watchdog(180):
             session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            #session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-            #session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX"
             nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][6]}"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------          
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_HEADERTEXT.XLSX")
+
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_HEADERTEXT :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    # Extração do Relatório ZMM_PURDOCS_REPORT
-    # APENAS INFORMAÇÕES AUXILIARES
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: ZMM_PURDOCS_REPORT (AUXINFO)
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_zmm_purdocs_auxinfo():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
-        print("Iniciando extração: ZMM_PURDOCS_REPORT (AUXINFO)")
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
+        logging.info("Iniciando extração: ZMM_PURDOCS_REPORT (AUXINFO)")
         session.findById("wnd[0]").maximize()
         session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_PURDOCS_REPORT"
         session.findById("wnd[0]").sendVKey (0)
@@ -542,8 +496,8 @@ def engdds_compras_main():
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,0]").text = "YIMP"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").text = "YNAC"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").text = "NB"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK" 
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"       
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").text = "MK"
+        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").text = "ZMK"
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").setFocus()
         session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").caretPosition = 2
         session.findById("wnd[1]/tbar[0]/btn[8]").press()
@@ -559,56 +513,40 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_LONGT").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT2").selected = True
         session.findById("wnd[0]/usr/chkP_LONGT3").selected = True
-        # session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "AUXINFO"
         session.findById("wnd[0]/usr/ctxtP_LAYOUT").text = "/AUXINFO"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
         try:
             session.findById("wnd[1]/usr/btnBUTTON_1").press()
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
         sap.kill_excel()
         with sap.export_watchdog(180):
             session.findById("wnd[0]/usr/cntlGRID/shellcont/shell/shellcont[0]/shell/shellcont[1]/shell").pressButton ("&XXL")
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Compras"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][0]
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = f"{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX"
             nome_arquivo = f"{end_year_compras}-{end_month_compras}-{end_day_compras} {meta_arquivos['engdds_compras.py']['files'][7]}"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------  
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Compras/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Compras/{end_year_compras}-{end_month_compras}-{end_day_compras} ZMM_PURDOCS_AUXINFO.XLSX")
+
         arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][0], nome_arquivo)
         minio.upload_or_queue(arquivo, 'tmp', nome_arquivo)
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
         sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][0]}/{nome_arquivo}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados do relatório ZMM_PURDOCS_AUXINFO :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
-        sap.cleanup()
-
-    # Extração da tabela DRAD
-    try:
-
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # BLOCO :: DRAD
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    def extrair_drad():
         session = sap.login_to_s4hana()
         try:
             session.FindById("wnd[0]").SendVKey (0)
-        except:
-            pass
+        except Exception as erro:
+            logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-        print("Iniciando extração: DRAD")
+        logging.info("Iniciando extração: DRAD")
         session.findById("wnd[0]/tbar[0]/okcd").text = "SE16N"
         session.findById("wnd[0]").sendVKey (0)
         session.findById("wnd[0]/usr/ctxtGD-TAB").text = "DRAD"
@@ -622,38 +560,44 @@ def engdds_compras_main():
 
             try:
                 session.findById("wnd[1]/tbar[0]/btn[0]").press()
-            except:
-                pass
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
-            # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-            # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-            # session.findById("wnd[1]/usr/ctxtDY_PATH").text = r"C:\Users\murilo.ribeiro\OneDrive - EUROCHEM FERTILIZANTES TOCANTINS\03 - Data Insight\Hadoop\SAP4HANA\Tabelas"
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = meta_arquivos['engdds_compras.py']['path'][1]
-            # session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = "EKPO.XLSX"
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = meta_arquivos['engdds_compras.py']['files'][8]
-            # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
-        # Encerrar sessão do SAP
         sap.limpar_processos()
-        # 2025-11-18: Remover a dependência do upload para o sharepoint e mapear arquivos através de um json
-        # DEPRECADO --------------------------------------------------------------------------------------------------------------------------------------------------------
-        # sap.upload_files(f"Shared Documents/Hadoop/SAP4HANA/Tabelas/",
-        #                  f"C:/Users/murilo.ribeiro/OneDrive - EUROCHEM FERTILIZANTES TOCANTINS/03 - Data Insight/Hadoop/SAP4HANA/Tabelas/EKPO.XLSX")
-        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1],meta_arquivos['engdds_compras.py']['files'][8])
-        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
-        # ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        sap.cleanup()
-        print(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][8]}")
 
-    except Exception as e:
-        logging.error(f'Erro ao exportar dados da tabela DRAD :: {str(e)}')
-        # Encerrar sessão do SAP
-        sap.limpar_processos()
+        arquivo = minio.buffer_creator(meta_arquivos['engdds_compras.py']['path'][1], meta_arquivos['engdds_compras.py']['files'][8])
+        minio.upload_or_queue(arquivo, 'tmp', meta_arquivos['engdds_compras.py']['files'][8])
         sap.cleanup()
+        logging.info(f"ATUALIZADO: {meta_arquivos['engdds_compras.py']['path'][1]}/{meta_arquivos['engdds_compras.py']['files'][8]}")
+
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    # EXECUÇÃO DOS BLOCOS COM RETRY
+    # ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+    executar_com_retry(erros=erros, etapa="ME2W", funcao=extrair_me2w, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ME5A", funcao=extrair_me5a, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="EBAN", funcao=extrair_eban, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="EKKO", funcao=extrair_ekko, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="EKPO", funcao=extrair_ekpo, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ZMM_PURDOCS_REPORT", funcao=extrair_zmm_purdocs_report, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ZMM_PURDOCS_HEADERTEXT", funcao=extrair_zmm_purdocs_headertext, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ZMM_PURDOCS_AUXINFO", funcao=extrair_zmm_purdocs_auxinfo, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="DRAD", funcao=extrair_drad, tentativas=3, intervalo=60)
 
     time.sleep(10)
     minio.flush_pending_uploads()
+
+    if erros:
+        raise RuntimeError(
+            "Ocorreram erros em uma ou mais extrações de COMPRAS:\n"
+            + "\n".join(erros)
+        )
+
+    logging.info("---- ENGDDS_COMPRAS.PY finalizado com sucesso ----")
+
 
 if __name__ == "__main__":
     engdds_compras_main()
