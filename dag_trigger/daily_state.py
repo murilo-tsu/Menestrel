@@ -46,3 +46,17 @@ def marcar_daily_concluida():
 def diaria_pendente_hoje():
     """True se a diária de hoje ainda não terminou (nunca começou ou ficou incompleta)."""
     return not carregar_estado()['daily_chain_triggered']
+
+
+def estado_nunca_existiu():
+    """True só no primeiro boot de todos — nenhum daily_state.json foi
+    gravado ainda nesta máquina/instalação (diferente de 'existe, mas é de
+    outro dia', que é tratado normalmente por carregar_estado())."""
+    return not os.path.exists(STATE_FILE)
+
+
+def marcar_estado_inicial():
+    """Grava o estado vazio de hoje sem rodar nada — usado quando o usuário
+    opta por não rodar a diária no primeiro deploy, pra que reinícios
+    seguintes (watchdog, crash, etc.) não caiam mais no primeiro-deploy."""
+    _salvar(carregar_estado())

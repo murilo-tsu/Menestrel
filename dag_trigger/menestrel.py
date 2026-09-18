@@ -3,6 +3,7 @@ import logging
 import threading
 from daily_state import (
     carregar_estado, marcar_task_concluida, marcar_daily_concluida, diaria_pendente_hoje,
+    estado_nunca_existiu, marcar_estado_inicial,
 )
 from datetime import datetime, time as t
 from colorama import init, Fore, Style
@@ -169,7 +170,7 @@ def limpar_variaveis():
 
         # Resume da diária — estado de progresso persistido em disco
         'carregar_estado', 'marcar_task_concluida', 'marcar_daily_concluida',
-        'diaria_pendente_hoje',
+        'diaria_pendente_hoje', 'estado_nunca_existiu', 'marcar_estado_inicial',
     }
 
     # Obter variáveis locais
@@ -858,7 +859,31 @@ armar_incrementais()
 
 # Resume da diária :: cobre processo que caiu/reiniciou (watchdog, reboot,
 # start manual tardio) antes de concluir a EXTRACAO DIARIA de hoje.
-if diaria_pendente_hoje():
+#
+# Exceção: no PRIMEIRO boot de todos (nenhum daily_state.json ainda existe
+# nesta máquina), decidir sozinho rodaria a diária inteira em qualquer
+# horário de deploy sem o operador esperar isso. Nesse caso específico,
+# pergunta. Depois dessa primeira decisão (qualquer que seja), o arquivo
+# passa a existir e todo restart seguinte — inclusive relançado pelo
+# watchdog — volta a ser automático, sem perguntar de novo.
+if estado_nunca_existiu():
+    logging.info("Nenhum daily_state.json encontrado — primeiro deploy nesta máquina.")
+    try:
+        resposta = input(
+            "Primeiro deploy do Menestrel — rodar a EXTRACAO DIARIA agora? [s/N]: "
+        ).strip().lower()
+    except EOFError:
+        resposta = ''
+        logging.warning("Sem entrada interativa disponível no primeiro deploy — assumindo 'não rodar agora'.")
+
+    if resposta in ('s', 'sim', 'y', 'yes'):
+        logging.info("Decisão do usuário (primeiro deploy): rodar a diária agora.")
+        extracao_diaria()
+    else:
+        logging.info("Decisão do usuário (primeiro deploy): aguardar o próximo agendamento (00:05).")
+        marcar_estado_inicial()
+
+elif diaria_pendente_hoje():
     logging.info("EXTRACAO DIARIA de hoje incompleta ou nunca iniciada — retomando no boot.")
     extracao_diaria()
 
