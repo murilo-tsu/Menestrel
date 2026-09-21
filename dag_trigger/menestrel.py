@@ -88,7 +88,7 @@ def print_header():
     """ ASCII :: ARTE DE CABEÇALHO """
     print(HEADER)
     print(f"{Fore.LIGHTWHITE_EX}╔══════════════════════════════════════════════════════════════════════════════════╗")
-    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v6.0.0':^80} ║")
+    print(f"║ {'Orquestrador de scripts de extração do SAP4HANA :: v6.1.0':^80} ║")
     print(f"║ {f'Inicializado: {datetime.now()} @10.91.0.60':^80} ║")
     print(f"╠══════════════════════════════════════════════════════════════════════════════════╣{Style.RESET_ALL}")
     print(f"{Fore.LIGHTWHITE_EX}║                           {Fore.LIGHTGREEN_EX}Aguardando scripts agendados{Style.RESET_ALL}{Fore.LIGHTWHITE_EX}                           ║")
@@ -819,8 +819,8 @@ def extracoes_incrementais():
 
     executar_incrementais()
 
-    schedule.every().hour.at(':00').until(FIM).do(executar_incrementais).tag('incremental')
-    logging.info("Incrementais agendadas para todo minuto 00 até as 19:00.")
+    schedule.every().hour.at(':30').until(FIM).do(executar_incrementais).tag('incremental')
+    logging.info("Incrementais agendadas para todo minuto 30 até as 19:00.")
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════════╗

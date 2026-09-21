@@ -1,6 +1,7 @@
 from saplogin import SAPLogin
 from datetime import date, timedelta
 from Minio import MinioConnector
+from heartbeat_utils import escrever_heartbeat
 import pandas as pd
 import json
 import time
@@ -48,6 +49,7 @@ def engdds_estoque_full_main():
             try:
 
                 for i in bukrs:
+                    escrever_heartbeat()
                     session = sap.login_to_s4hana()
                     session.findById("wnd[0]/tbar[0]/okcd").text = "ZMM_QNTY_PIVB"
                     session.findById("wnd[0]").sendVKey (0)
