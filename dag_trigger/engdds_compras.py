@@ -173,6 +173,8 @@ def engdds_compras_main():
         session.findById("wnd[0]/usr/chkP_ERLBA").selected = True
         session.findById("wnd[0]/usr/chkP_BSTBA").selected = True
         session.findById("wnd[0]/usr/chkP_SELGS").selected = True
+        session.findById("wnd[0]/usr/ctxtS_FRGDT-LOW").text = "01.01.2023"
+        session.findById("wnd[0]/usr/ctxtS_FRGDT-HIGH").text = "31.12.9999"
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
         session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
 

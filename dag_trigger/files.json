@@ -190,5 +190,11 @@
             {
                 "path":"C:/Temp/t1/zfi_nf_pivb",
                 "files":"ZFI_NF_PIVB.xlsx"
+            },
+        
+        "engdds_erp_forecast.py":
+            {
+                "path":"C:/Temp/t1/erp_forecast",
+                "files":"ZMM_FORECAST_STOCK.xlsx"
             }
 }

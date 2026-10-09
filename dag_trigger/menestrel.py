@@ -39,6 +39,7 @@ from engdds_fbl5h import engdds_fbl5h_main
 from engdds_nf_01 import engdds_nf_01_main
 from engdds_zmb5t import engdds_zmb5t_main
 from engdds_mb52 import engdds_mb52_main
+from engdds_erp_forecast import engdds_erp_forecast_main
 
 # Inicializando o COLORAMA
 init()
@@ -133,7 +134,7 @@ def limpar_variaveis():
         'pre_task', 'task01', 'task02', 'task03', 'task04', 'task05', 'task06', 'task07',
         'task08', 'task09', 'task10', 'task11', 'task12', 'task13',
         'task14', 'task15', 'task16', 'task17', 'task18', 'task19', 'task20',
-        'task21', 'task22', 'task23', 'task24', 'task25', 'task26',
+        'task21', 'task22', 'task23', 'task24', 'task25', 'task26', 'task27',
         'hourly_task01', 'hourly_task02', 'hourly_task03', 'hourly_task04',
         'hourly_task05', 'hourly_task06', 'hourly_task07', 'hourly_task08', 'position_files',
 
@@ -148,6 +149,7 @@ def limpar_variaveis():
         'engdds_zfi_nf_pivb_main', 'engdds_vl06i_main', 'engdds_cogi_main',
         'engdds_zfi_gl_pivb_main', 'engdds_mb51_consumo_main', 'engdds_fbl3h_main',
         'engdds_fbl5h_main', 'engdds_nf_01_main', 'engdds_zmb5t_main', 'engdds_mb52_main',
+        'engdds_erp_forecast_main',
 
         # Bibliotecas a serem protegidas a cada execução de limpeza de variáveis
         'schedule', 'logging', 'datetime', 'Fore', 'Style', 'init', 'time', 'threading',
@@ -484,6 +486,17 @@ def task26():
         limpar_variaveis()
 
 
+def task27():
+    try:
+        engdds_erp_forecast_main()
+        logging.info("ENGDDS_ERP_FORECAST_MAIN executado")
+    except Exception as erro:
+        logging.error(f"ENGDDS_ERP_FORECAST_MAIN não executado: {erro}")
+        raise
+    finally:
+        limpar_variaveis()
+
+
 # ╔══════════════════════════════════════════════════════════════════════════════════╗
 # ║ HELPERS :: Log verboso por task incremental                                      ║
 # ║ ---------------------------------------------                                    ║
@@ -681,6 +694,7 @@ def extracao_diaria():
         rodar(task24,    "FBL3H")
         rodar(task25,    "FBL5H")
         rodar(task26,    "NF_01")
+        rodar(task27,    "ERP_FORECAST")
 
         trigger.trigger_airflow_dag(dag_name='daily_chained_dags')
         marcar_daily_concluida()
@@ -819,7 +833,7 @@ def extracoes_incrementais():
 
     executar_incrementais()
 
-    schedule.every().hour.at(':30').until(FIM).do(executar_incrementais).tag('incremental')
+    schedule.every().hour.at(':50').until(FIM).do(executar_incrementais).tag('incremental')
     logging.info("Incrementais agendadas para todo minuto 30 até as 19:00.")
 
 

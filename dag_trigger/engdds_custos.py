@@ -121,6 +121,10 @@ def engdds_custos_main():
             session.findById("wnd[0]").sendVKey (0)
             session.findById("wnd[0]/tbar[1]/btn[8]").press()
             session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
+            try:
+                session.findById("wnd[0]").sendVKey (0)
+            except:
+                pass
             #session.findById("wnd[1]/usr/ctxtDY_PATH").setFocus
             #session.findById("wnd[1]/usr/ctxtDY_PATH").caretPosition = 0
             session.findById("wnd[1]").sendVKey (4)

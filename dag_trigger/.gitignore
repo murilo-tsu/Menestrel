@@ -1,0 +1,8 @@
+# Pastas internas do dag_trigger — só locais, nunca versionadas
+_credentials/
+_modules/
+__pycache__/
+.claude/
+*.py[cod]
+*$py.class
+*.pyc

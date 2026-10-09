@@ -89,7 +89,7 @@ class SAPLogin:
             with self.login_watchdog(120):
                 self._initialize_sap_gui()
                 logging.info('SAP :: sessão iniciada')
-                return self._perform_login("SAP S/4 HANA PROD", lang)
+                return self._perform_login("SAP S/4 HANA PROD (SSO)", lang)
         except Exception as e:
             self.cleanup()
             raise Exception(f"Falha ao realizar o login no SAP4HANA: {str(e)}") from e

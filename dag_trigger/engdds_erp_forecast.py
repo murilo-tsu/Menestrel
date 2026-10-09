@@ -6,10 +6,6 @@ import time
 import os
 import logging
 
-# Instaciador de SAP Session
-sap = SAPLogin()
-
-
 def registrar_erro(erros, etapa, erro):
     """
     Registra erro definitivo de uma etapa.
@@ -26,7 +22,7 @@ def registrar_erro(erros, etapa, erro):
         sap.limpar_processos()
         sap.cleanup()
     except Exception as erro_cleanup:
-        logging.debug(f"Falha ao limpar processos após erro definitivo em {etapa}: {erro_cleanup}")
+        logging.debug(f"Falha ao limpar processos apos erro definitivo em {etapa}: {erro_cleanup}")
 
 
 def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
@@ -63,7 +59,7 @@ def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
                 sap.limpar_processos()
                 sap.cleanup()
             except Exception as erro_cleanup:
-                logging.debug(f"Falha ao limpar processos após tentativa de {etapa}: {erro_cleanup}")
+                logging.debug(f"Falha ao limpar processos apos tentativa de {etapa}: {erro_cleanup}")
 
             if tentativa < tentativas:
                 logging.info(f"{etapa} será tentado novamente em {intervalo} segundos...")
@@ -73,8 +69,11 @@ def executar_com_retry(erros, etapa, funcao, tentativas=3, intervalo=60):
     return False
 
 
-def engdds_mb52_main():
-    logging.info("---- INICIANDO PROCESSO: ENGDDS_MB52.PY ----")
+# Instaciador de SAP Session
+sap = SAPLogin()
+
+def engdds_erp_forecast_main():
+    logging.info("---- INICIANDO PROCESSO: ENGDDS_ERP_FORECAST.PY ----")
 
     erros = []
 
@@ -86,53 +85,37 @@ def engdds_mb52_main():
     with open(files_json_path, 'r', encoding='utf-8') as file:
         meta_arquivos = json.load(file)
 
-    def extrair_mb52():
+    def extrair_erp_forecast():
         session = sap.login_to_s4hana(lang='PT')
 
-        try:
-            session.FindById("wnd[0]").SendVKey(0)
-        except Exception as erro:
-            logging.debug(f"Pop-up opcional nao tratado: {erro}")
-
-        session.findById("wnd[0]/tbar[0]/okcd").Text = "/nmb52"
+        session.findById("wnd[0]").maximize()
+        session.findById("wnd[0]/tbar[0]/okcd").text = "/nZMM_FORECAST_STOCK"
         session.findById("wnd[0]").sendVKey (0)
 
-        session.findById("wnd[0]/usr/radPA_FLT").setFocus()
-        session.findById("wnd[0]/usr/radPA_FLT").select()
-
-        session.findById("wnd[0]/usr/btn%_WERKS_%_APP_%-VALU_PUSH").press()
-        session.findById("wnd[1]/tbar[0]/btn[16]").press()
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,1]").Text = "E90*"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,2]").Text = "P90*"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,3]").Text = "P60*"
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL_255-SLOW_I[1,4]").Text = "E60*"
-        session.findById("wnd[1]/tbar[0]/btn[8]").press()
-
-        session.findById("wnd[0]/usr/btn%_LGORT_%_APP_%-VALU_PUSH").press()
-        session.findById("wnd[1]/tbar[0]/btn[16]").press()
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpNOSV").Select()
-        session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpNOSV/ssubSCREEN_HEADER:SAPLALDB:3030/tblSAPLALDBSINGLE_E/ctxtRSCSEL_255-SLOW_E[1,0]").Text = "302*"
-        session.findById("wnd[1]/tbar[0]/btn[8]").press()
-
-        session.findById("wnd[0]/usr/chkXMCHB").Selected = False
-        session.findById("wnd[0]/usr/chkNOZERO").Selected = True
-
-        session.findById("wnd[0]/usr/ctxtP_VARI").Text = "/PCP_DADOS"
-        session.findById("wnd[0]/usr/ctxtP_VARI").SetFocus()
-        session.findById("wnd[0]/usr/ctxtP_VARI").caretPosition = 11
+        # ATENÇÃO: seleciona a variante pela posição (1ª linha da lista).
+        # Se uma variante nova for criada/renomeada no SAP, outra pode ser usada.
+        session.findById("wnd[0]/tbar[1]/btn[17]").press()
+        session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").selectedRows = "0"
+        session.findById("wnd[1]/usr/cntlALV_CONTAINER_1/shellcont/shell").doubleClickCurrentCell()
         session.findById("wnd[0]/tbar[1]/btn[8]").press()
 
-        caminho_arquivo = meta_arquivos['engdds_mb52.py']['path']
-        nome_arquivo = f"{date.today().strftime('%d.%m.%Y')}_{meta_arquivos['engdds_mb52.py']['files']}"
+        caminho_arquivo = meta_arquivos['engdds_erp_forecast.py']['path']
+        nome_arquivo = f"{date.today().strftime('%d.%m.%Y')}_{meta_arquivos['engdds_erp_forecast.py']['files']}"
+
+        session.findById("wnd[0]/usr/cntlCONT/shellcont/shell").pressToolbarContextButton ("&MB_EXPORT")
+        session.findById("wnd[0]/usr/cntlCONT/shellcont/shell").selectContextMenuItem ("&XXL")
 
         sap.kill_excel()
         with sap.export_watchdog(180):
-            session.findById("wnd[0]/mbar/menu[0]/menu[3]/menu[1]").select()
             session.findById("wnd[1]/tbar[0]/btn[0]").press()
+
+            try:
+                session.findById("wnd[1]/tbar[0]/btn[0]").press()
+            except Exception as erro:
+                logging.debug(f"Pop-up opcional nao tratado: {erro}")
 
             session.findById("wnd[1]/usr/ctxtDY_PATH").text = caminho_arquivo
             session.findById("wnd[1]/usr/ctxtDY_FILENAME").text = nome_arquivo
-            session.findById("wnd[1]/usr/ctxtDY_FILENAME").caretPosition = 14
             session.findById("wnd[1]/tbar[0]/btn[11]").press()
 
         arquivo = minio.buffer_creator(caminho_arquivo, nome_arquivo)
@@ -141,18 +124,18 @@ def engdds_mb52_main():
         sap.limpar_processos()
         sap.cleanup()
 
-    executar_com_retry(erros=erros, etapa="MB52", funcao=extrair_mb52, tentativas=3, intervalo=60)
+    executar_com_retry(erros=erros, etapa="ERP_FORECAST", funcao=extrair_erp_forecast, tentativas=3, intervalo=60)
 
     time.sleep(10)
     minio.flush_pending_uploads()
 
     if erros:
         raise RuntimeError(
-            "Ocorreram erros em uma ou mais extrações de MB52:\n"
+            "Ocorreram erros em uma ou mais extrações de ERP_FORECAST:\n"
             + "\n".join(erros)
         )
 
-    logging.info("---- ENGDDS_MB52.PY finalizado com sucesso ----")
+    logging.info("---- ENGDDS_ERP_FORECAST.PY finalizado com sucesso ----")
 
 if __name__ == "__main__":
-    engdds_mb52_main()
+    engdds_erp_forecast_main()
